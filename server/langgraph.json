@@ -1,7 +1,8 @@
 {
   "dependencies": ["."],
   "graphs": {
-    "agent": "./src/agent/graph.py:graph"
+    "agent": "./src/agents/graph.py:graph",
+    "warren_buffett_agent": "./src/agents/warren_buffett_agent.py:warren_buffett_agent"
   },
   "env": ".env"
 }

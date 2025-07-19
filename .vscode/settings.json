@@ -1,0 +1,5 @@
+{
+  "pylint.cwd": "server",
+  "python.pythonPath": "./server/.venv/bin/python",
+  "eslint.workspaceFolder": "web"
+}

@@ -1,0 +1,22 @@
+{
+  // need: langgraph dev --debug-port 5678
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to LangGraph",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "0.0.0.0",
+        "port": 5678
+      }
+    },
+    {
+      "name": "Next.js: debug server-side",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm dev",
+      "cwd": "${workspaceFolder}/web"
+    }
+  ]
+}
