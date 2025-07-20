@@ -1,10 +1,13 @@
-export function Logo() {
+export function Logo({ size = 24 }) {
   return (
-    <div className='flex items-center justify-between'>
-      <div className='font-medium'>
-        <span className='mr-1 text-2xl'>🦌</span>
-        <span className='mr-1 text-2xl'>aostock</span>
+    <div className="flex">
+      <div className="">
+        <img
+          src="/logo.svg"
+          alt="logo"
+        />
       </div>
+      <div className="ml-2 font-bold">AOSTOCK</div>
     </div>
-  )
+  );
 }

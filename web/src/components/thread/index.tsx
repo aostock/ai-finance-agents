@@ -233,27 +233,29 @@ export function Thread() {
     (m) => m.type === "ai" || m.type === "tool",
   );
 
+  const leftWidth = 260;
+
   return (
     <div className="flex h-screen w-full overflow-hidden">
       <div className="relative hidden lg:flex">
         <motion.div
-          className="absolute z-20 h-full overflow-hidden border-r"
-          style={{ width: 300 }}
+          className="bg-sidebar absolute z-20 h-full overflow-hidden border-r"
+          style={{ width: leftWidth }}
           animate={
             isLargeScreen
-              ? { x: chatHistoryOpen ? 0 : -300 }
-              : { x: chatHistoryOpen ? 0 : -300 }
+              ? { x: chatHistoryOpen ? 0 : -leftWidth }
+              : { x: chatHistoryOpen ? 0 : -leftWidth }
           }
-          initial={{ x: -300 }}
+          initial={{ x: -leftWidth }}
           transition={
             isLargeScreen
-              ? { type: "spring", stiffness: 300, damping: 30 }
+              ? { type: "spring", stiffness: leftWidth, damping: 30 }
               : { duration: 0 }
           }
         >
           <div
             className="relative h-full"
-            style={{ width: 300 }}
+            style={{ width: leftWidth }}
           >
             <ThreadHistory />
           </div>
@@ -273,16 +275,16 @@ export function Thread() {
           )}
           layout={isLargeScreen}
           animate={{
-            marginLeft: chatHistoryOpen ? (isLargeScreen ? 300 : 0) : 0,
+            marginLeft: chatHistoryOpen ? (isLargeScreen ? leftWidth : 0) : 0,
             width: chatHistoryOpen
               ? isLargeScreen
-                ? "calc(100% - 300px)"
+                ? "calc(100% - " + leftWidth + "px)"
                 : "100%"
               : "100%",
           }}
           transition={
             isLargeScreen
-              ? { type: "spring", stiffness: 300, damping: 30 }
+              ? { type: "spring", stiffness: leftWidth, damping: 30 }
               : { duration: 0 }
           }
         >
@@ -394,7 +396,7 @@ export function Thread() {
                               htmlFor="render-tool-calls"
                               className="text-sm"
                             >
-                              Hide Tool Calls
+                              Hide Tools
                             </Label>
                           </div>
                         </div>
@@ -403,7 +405,7 @@ export function Thread() {
                           className="flex cursor-pointer items-center gap-2"
                         >
                           <Plus className="size-5" />
-                          <span className="text-sm">Upload PDF or Image</span>
+                          <span className="text-sm">Upload</span>
                         </Label>
                         <input
                           id="file-input"

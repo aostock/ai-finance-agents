@@ -19,6 +19,7 @@ interface ThreadContextType {
   setThreads: Dispatch<SetStateAction<Thread[]>>;
   threadsLoading: boolean;
   setThreadsLoading: Dispatch<SetStateAction<boolean>>;
+  archiveThread: (threadId: string) => Promise<void>;
 }
 
 const ThreadContext = createContext<ThreadContextType | undefined>(undefined);
@@ -53,12 +54,20 @@ export function ThreadProvider({ children }: { children: ReactNode }) {
     return threads;
   }, [apiUrl, assistantId]);
 
+  const archiveThread = async (threadId: string) => {
+    if (!apiUrl || !assistantId) return;
+    const client = createClient(apiUrl, getApiKey() ?? undefined);
+    await client.threads.delete(threadId);
+    setThreads(threads.filter((t) => t.thread_id !== threadId));
+  };
+
   const value = {
     getThreads,
     threads,
     setThreads,
     threadsLoading,
     setThreadsLoading,
+    archiveThread,
   };
 
   return (
