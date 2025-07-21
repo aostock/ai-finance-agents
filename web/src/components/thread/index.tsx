@@ -51,6 +51,8 @@ import {
 import { ThemeToggle } from "../core/theme-toggle";
 import Link from "next/link";
 import { PageHeader } from "../core/page-header";
+import { Logo } from "../core/logo";
+import { AssistantList } from "../core/assistants";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -336,11 +338,12 @@ export function Thread() {
               footer={
                 <div className="sticky bottom-0 flex flex-col items-center gap-8">
                   {!chatStarted && (
-                    <div className="flex items-center gap-3">
-                      <LangGraphLogoSVG className="h-8 flex-shrink-0" />
-                      <h1 className="text-2xl font-semibold tracking-tight">
-                        Agent Chat
-                      </h1>
+                    <div className="flex flex-col items-center gap-3">
+                      <Logo
+                        logoSize={9}
+                        textSize="text-3xl"
+                      />
+                      <AssistantList />
                     </div>
                   )}
 
@@ -349,10 +352,10 @@ export function Thread() {
                   <div
                     ref={dropRef}
                     className={cn(
-                      "bg-muted relative z-10 mx-auto mb-8 w-full max-w-3xl rounded-2xl shadow-xs transition-all",
+                      "bg-muted relative z-10 mx-auto mb-8 w-full max-w-3xl rounded-2xl border shadow-xs transition-all",
                       dragOver
-                        ? "border-primary border-2 border-dotted"
-                        : "border border-solid",
+                        ? "border-primary border-dotted"
+                        : "border-solid",
                     )}
                   >
                     <form
@@ -426,13 +429,13 @@ export function Thread() {
                         ) : (
                           <Button
                             type="submit"
-                            className="ml-auto rounded-full shadow-md transition-all"
+                            className="ml-auto w-9 rounded-full shadow-md transition-all"
                             disabled={
                               isLoading ||
                               (!input.trim() && contentBlocks.length === 0)
                             }
                           >
-                            <ArrowUp />
+                            <ArrowUp size={32} />
                           </Button>
                         )}
                       </div>

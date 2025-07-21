@@ -5,10 +5,23 @@ import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { ThemeToggle } from "./theme-toggle";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { PanelRightClose, PanelRightOpen, SquarePen } from "lucide-react";
-import { motion } from "framer-motion";
-// import { TooltipIconButton } from "../thread/tooltip-icon-button";
-import { LangGraphLogoSVG } from "../icons/langgraph";
+import {
+  ArrowDown,
+  ArrowDownIcon,
+  ChevronDown,
+  PanelRightClose,
+  PanelRightOpen,
+  SquarePen,
+  Sun,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { AssistantSelect } from "./assistants";
 // import { useArtifactContext, useArtifactOpen } from "../thread/artifact";
 
 export function PageHeader() {
@@ -17,21 +30,11 @@ export function PageHeader() {
     "chatHistoryOpen",
     parseAsBoolean.withDefault(false),
   );
-  //   const [artifactContext, setArtifactContext] = useArtifactContext();
-  //   const [artifactOpen, closeArtifact] = useArtifactOpen();
 
-  //   const [threadId, _setThreadId] = useQueryState("threadId");
-  //   const setThreadId = (id: string | null) => {
-  //     _setThreadId(id);
-
-  //     // close artifact and reset artifact context
-  //     closeArtifact();
-  //     setArtifactContext({});
-  //   };
   return (
     <div className="relative z-10 flex items-center justify-between gap-3 p-2">
       <div className="relative flex items-center justify-start gap-2">
-        <div className="absolute left-0 z-10">
+        <div className="">
           <Button
             className="hover:bg-muted"
             variant="ghost"
@@ -44,26 +47,9 @@ export function PageHeader() {
             )}
           </Button>
         </div>
-        {/* <motion.button
-          className="flex cursor-pointer items-center gap-2"
-          onClick={() => setThreadId(null)}
-          animate={{
-            marginLeft: !chatHistoryOpen ? 48 : 0,
-          }}
-          transition={{
-            type: "spring",
-            stiffness: 300,
-            damping: 30,
-          }}
-        >
-          <LangGraphLogoSVG
-            width={32}
-            height={32}
-          />
-          <span className="text-xl font-semibold tracking-tight">
-            Agent Chat
-          </span>
-        </motion.button> */}
+        <div>
+          <AssistantSelect />
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
@@ -97,7 +83,7 @@ export function PageHeaderRight() {
           variant="outline"
           size="sm"
           asChild
-          className="group relative z-10 border-0"
+          className="group relative z-10 border-0 shadow-none"
         >
           <Link
             href="https://github.com/aostock/ai-finance-agents"

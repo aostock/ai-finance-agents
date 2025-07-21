@@ -20,6 +20,7 @@ import {
   RemoveFormattingIcon,
   DeleteIcon,
   Archive,
+  Edit,
 } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Logo } from "@/components/core/logo";
@@ -37,16 +38,16 @@ function ThreadList({
   const [threadId, setThreadId] = useQueryState("threadId");
 
   return (
-    <div className="flex h-full flex-col items-start justify-start gap-2 overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent">
+    <div className="flex h-full flex-col items-start justify-start gap-2 overflow-x-hidden overflow-y-scroll px-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent">
       <div
         key={null}
-        className="w-full px-1"
+        className="mt-4 mb-4 w-full"
       >
         <Button
           variant="ghost"
           className={cn(
-            threadId === null ? "bg-muted border" : "",
-            "w-full items-start justify-start text-left font-normal",
+            threadId === null ? "bg-muted" : "",
+            "primary bg-muted w-full items-start justify-start border px-3 text-left font-normal",
           )}
           onClick={(e) => {
             e.preventDefault();
@@ -55,9 +56,12 @@ function ThreadList({
             setThreadId(null);
           }}
         >
-          <Plus />
+          <Edit />
           <p className="truncate text-ellipsis">New Chat</p>
         </Button>
+      </div>
+      <div className="text-primary/50 mx-3 mt-3 mb-1 w-full text-sm">
+        <p>Chat Histories</p>
       </div>
       {threads.map((t) => {
         let itemText = t.thread_id;
@@ -74,13 +78,13 @@ function ThreadList({
         return (
           <div
             key={t.thread_id}
-            className="w-full px-1"
+            className="w-full"
           >
             <Button
               variant="ghost"
               className={cn(
                 threadId === t.thread_id ? "bg-muted border" : "",
-                "flex w-full items-start justify-between text-left font-normal",
+                "group flex w-full items-start justify-between px-3 text-left font-normal",
               )}
               onClick={(e) => {
                 e.preventDefault();
@@ -91,7 +95,7 @@ function ThreadList({
             >
               <p className="w-0 flex-1 flex-grow truncate">{itemText}</p>
               <div
-                className="cursor-pointer rounded-full p-1"
+                className="invisible cursor-pointer rounded-full py-0.5 group-hover:visible"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -99,7 +103,7 @@ function ThreadList({
                   if (t.thread_id === threadId) setThreadId(null);
                 }}
               >
-                <Archive />
+                <Archive className="text-primary/60" />
               </div>
             </Button>
           </div>
@@ -155,7 +159,7 @@ export default function ThreadHistory() {
             <Logo />
           </h1>
         </div>
-        <div className="w-full pl-1.5">
+        <div className="h-full w-full">
           {threadsLoading ? (
             <ThreadHistoryLoading />
           ) : (
