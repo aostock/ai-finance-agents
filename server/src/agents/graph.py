@@ -13,7 +13,7 @@ from langgraph.prebuilt import ToolNode
 from langgraph.graph import MessagesState
 from copilotkit import CopilotKitState
 from langgraph.checkpoint.memory import MemorySaver
-from src.llm.llm_model import model
+from llm.llm_model import model
 
 class AgentState(MessagesState):
     """

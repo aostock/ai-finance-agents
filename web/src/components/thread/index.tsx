@@ -24,6 +24,8 @@ import {
   Plus,
   CircleX,
   ArrowUp,
+  Upload,
+  Paperclip,
 } from "lucide-react";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { useQueryState, parseAsBoolean } from "nuqs";
@@ -33,12 +35,7 @@ import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
+
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { ContentBlocksPreview } from "./ContentBlocksPreview";
 import {
@@ -53,6 +50,7 @@ import Link from "next/link";
 import { PageHeader } from "../core/page-header";
 import { Logo } from "../core/logo";
 import { AssistantList } from "../core/assistants";
+import { TitleTooltip } from "../core/title-tooltip";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -388,7 +386,7 @@ export function Thread() {
                       />
 
                       <div className="flex items-center gap-6 p-2 pt-4">
-                        <div>
+                        {/* <div>
                           <div className="flex items-center space-x-2">
                             <Switch
                               id="render-tool-calls"
@@ -402,14 +400,19 @@ export function Thread() {
                               Hide Tools
                             </Label>
                           </div>
-                        </div>
+                        </div> */}
+
                         <Label
                           htmlFor="file-input"
-                          className="flex cursor-pointer items-center gap-2"
+                          className="hover:bg-background flex h-9 w-9 cursor-pointer items-center justify-center rounded-full"
                         >
-                          <Plus className="size-5" />
-                          <span className="text-sm">Upload</span>
+                          {/* <Plus className="size-5" /> */}
+                          <TitleTooltip title="Upload image or PDF file">
+                            {/* <Upload className="size-5" /> */}
+                            <Paperclip className="size-5" />
+                          </TitleTooltip>
                         </Label>
+
                         <input
                           id="file-input"
                           type="file"

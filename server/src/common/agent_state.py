@@ -1,7 +1,6 @@
 from langgraph.graph import MessagesState
 from dataclasses import dataclass
 from typing import Optional
-from copilotkit import CopilotKitState
 
 @dataclass
 class AgentState(MessagesState):

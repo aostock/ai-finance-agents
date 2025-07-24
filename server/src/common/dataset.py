@@ -1,6 +1,7 @@
 import requests
 import time
 import os
+from urllib.parse import urlencode
 
 REMOTE_DATASET_URL = os.getenv('REMOTE_DATASET_URL').rstrip("/")
 
@@ -13,7 +14,7 @@ def get_financial_metrics(ticker, end_date=None, period='yearly'):
     return data
 
 def get_prices(ticker: str, start_date: str, end_date: str) -> list[dict]:
-    return _request(f'ticker/prices', query={'ticker': ticker, interval:'1d', 'start_date': start_date, 'end_date': end_date})
+    return _request(f'ticker/prices', query={'ticker': ticker, 'interval':'1d', 'start_date': start_date, 'end_date': end_date})
 
 def get_insider_transactions(ticker: str, end_date: str = None) -> list[dict]:
     data = _request(f'ticker/insider_transactions', query={'ticker': ticker})
@@ -32,13 +33,20 @@ def get_news(ticker: str, end_date: str = None) -> list[dict]:
 def get_info(ticker: str) -> dict:
     return _request(f'ticker/info', query={'ticker': ticker})
 
+def lookup_ticker(query: str) -> dict:
+    return _request(f'ticker/lookup', query={'query': query})
+
 
 def _request(url: str, query: dict = None, max_retries: int = 3) -> requests.Response:
     # format url, trim leading '/'
     url = f'{REMOTE_DATASET_URL}/api/v1/{url.lstrip("/")}'
     # format query string in url, and encode special characters
     if query:
-        url += f'?{requests.utils.urlencode(query)}'
+        url += f'?{urlencode(query)}'
+    
+    headers = {
+        'Authorization': f'Bearer {os.getenv("REMOTE_DATASET_TOKEN")}'
+    }
     
     for attempt in range(max_retries + 1):  # +1 for initial attempt
         response = requests.get(url, headers=headers)

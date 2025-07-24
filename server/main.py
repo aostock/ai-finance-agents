@@ -3,8 +3,8 @@ from fastapi import FastAPI
 import uvicorn
 from copilotkit.integrations.fastapi import add_fastapi_endpoint 
 from copilotkit import CopilotKitRemoteEndpoint, LangGraphAgent 
-from src.agents.warren_buffett_agent import warren_buffett_agent 
-from src.agents.graph import graph
+from agents.warren_buffett import warren_buffett
+from agents.graph import graph
  
 from dotenv import load_dotenv
 load_dotenv()
@@ -19,9 +19,9 @@ sdk = CopilotKitRemoteEndpoint(
             graph=graph, # the graph object from your langgraph import
         ),
         LangGraphAgent(
-            name="warren_buffett_agent", # the name of your agent defined in langgraph.json
+            name="warren_buffett", # the name of your agent defined in langgraph.json
             description="Describe your agent here, will be used for multi-agent orchestration",
-            graph=warren_buffett_agent, # the graph object from your langgraph import
+            graph=warren_buffett, # the graph object from your langgraph import
         )
     ],
 )
@@ -37,7 +37,7 @@ def health():
  
 if __name__ == "__main__":
     """Run the uvicorn server."""
-    port = int(os.getenv("PORT", "8123"))
+    port = int(os.getenv("PORT", "2024"))
     uvicorn.run(
         "main:app", # the path to your FastAPI file, replace this if its different
         host="0.0.0.0",

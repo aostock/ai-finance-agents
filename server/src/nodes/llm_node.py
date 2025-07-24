@@ -1,7 +1,7 @@
-from src.common.agent_state import AgentState
+from common.agent_state import AgentState
 from langchain_core.runnables import RunnableConfig
 from typing import Dict, Any
-from src.llm.llm_model import model
+from llm.llm_model import model
 
 
 class LLMNode():

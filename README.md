@@ -48,7 +48,7 @@ pnpm install
 ```bash
 cd server
 source .venv/bin/activate
-langgraph dev --debug-port 5678
+langgraph dev --debug-port 5678 --allow-blocking
 ```
 
 2. Run the web app

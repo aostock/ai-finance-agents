@@ -1,9 +1,9 @@
-from src.common.agent_state import AgentState
+from common.agent_state import AgentState
 from langchain_core.runnables import RunnableConfig
 from typing import Dict, Any
 
 
-class FundamentalAnalysisNode():
+class FundamentalAnalysis():
     def __init__(self, options: Dict[str, Any]):
         self.options = options
 

@@ -8,57 +8,12 @@ import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 import { FC, memo, useState } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter";
 
 import { TooltipIconButton } from "@/components/thread/tooltip-icon-button";
 import { cn } from "@/lib/utils";
 
 import "katex/dist/katex.min.css";
-
-interface CodeHeaderProps {
-  language?: string;
-  code: string;
-}
-
-const useCopyToClipboard = ({
-  copiedDuration = 3000,
-}: {
-  copiedDuration?: number;
-} = {}) => {
-  const [isCopied, setIsCopied] = useState<boolean>(false);
-
-  const copyToClipboard = (value: string) => {
-    if (!value) return;
-
-    navigator.clipboard.writeText(value).then(() => {
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), copiedDuration);
-    });
-  };
-
-  return { isCopied, copyToClipboard };
-};
-
-const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
-  const { isCopied, copyToClipboard } = useCopyToClipboard();
-  const onCopy = () => {
-    if (!code || isCopied) return;
-    copyToClipboard(code);
-  };
-
-  return (
-    <div className="flex items-center justify-between gap-4 rounded-t-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white">
-      <span className="lowercase [&>span]:text-xs">{language}</span>
-      <TooltipIconButton
-        tooltip="Copy"
-        onClick={onCopy}
-      >
-        {!isCopied && <CopyIcon />}
-        {isCopied && <CheckIcon />}
-      </TooltipIconButton>
-    </div>
-  );
-};
+import { CodeRenderer } from "./code-rendder";
 
 const defaultComponents: any = {
   h1: ({ className, ...props }: { className?: string }) => (
@@ -195,52 +150,11 @@ const defaultComponents: any = {
   ),
   pre: ({ className, ...props }: { className?: string }) => (
     <pre
-      className={cn(
-        "max-w-4xl overflow-x-auto rounded-lg bg-black text-white",
-        className,
-      )}
+      className={cn("max-w-4xl overflow-x-auto rounded-lg", className)}
       {...props}
     />
   ),
-  code: ({
-    className,
-    children,
-    ...props
-  }: {
-    className?: string;
-    children: React.ReactNode;
-  }) => {
-    const match = /language-(\w+)/.exec(className || "");
-
-    if (match) {
-      const language = match[1];
-      const code = String(children).replace(/\n$/, "");
-
-      return (
-        <>
-          <CodeHeader
-            language={language}
-            code={code}
-          />
-          <SyntaxHighlighter
-            language={language}
-            className={className}
-          >
-            {code}
-          </SyntaxHighlighter>
-        </>
-      );
-    }
-
-    return (
-      <code
-        className={cn("rounded font-semibold", className)}
-        {...props}
-      >
-        {children}
-      </code>
-    );
-  },
+  code: CodeRenderer,
 };
 
 const MarkdownTextImpl: FC<{ children: string }> = ({ children }) => {

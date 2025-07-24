@@ -2,7 +2,7 @@
   "dependencies": ["."],
   "graphs": {
     "agent": "./src/agents/graph.py:graph",
-    "warren_buffett_agent": "./src/agents/warren_buffett_agent.py:warren_buffett_agent"
+    "warren_buffett": "./src/agents/warren_buffett.py:warren_buffett"
   },
   "env": ".env"
 }

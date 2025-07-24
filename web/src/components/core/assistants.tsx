@@ -37,23 +37,11 @@ const assistants = [
     name: "agent",
     title: "Agent",
     description: "common agent",
-    icon: (
-      <Sun
-        size={24}
-        className="scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90"
-      />
-    ),
   },
   {
-    name: "warren_buffett_agent",
-    title: "Warren Buffett Agent",
+    name: "warren_buffett",
+    title: "Warren Buffett",
     description: "Warren Buffett Agent",
-    icon: (
-      <Sun
-        size={24}
-        className="scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90"
-      />
-    ),
   },
 ];
 
@@ -63,6 +51,7 @@ export function AssistantList() {
     <div className="mt-10 flex w-3xl gap-4">
       {assistants.map((assistant) => (
         <Card
+          key={assistant.name}
           className="hover:bg-muted relative w-1/2 cursor-pointer"
           onClick={() => setAssistantId(assistant.name)}
         >
@@ -75,10 +64,10 @@ export function AssistantList() {
           </Button>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <User
-                size={18}
-                className="mr-2"
-              />{" "}
+              <img
+                className="mr-2 h-8 w-8 rounded-full"
+                src={`/images/assistants/${assistant.name}.png`}
+              />
               <p className="flex-1">{assistant.title}</p>
             </CardTitle>
             {/* <CardDescription>{assistant.description}</CardDescription> */}
@@ -105,7 +94,10 @@ export function AssistantSelect() {
       <TitleTooltip title="Change assistant">
         <DropdownMenuTrigger asChild>
           <Button variant="ghost">
-            {getAssistant(assistantId)?.icon}
+            <img
+              className="mr-1 h-6 w-6 rounded-full"
+              src={`/images/assistants/${getAssistant(assistantId)?.name}.png`}
+            />
             <span>{getAssistant(assistantId)?.title}</span>
             <ChevronDown />
           </Button>
@@ -116,9 +108,18 @@ export function AssistantSelect() {
           <DropdownMenuItem
             key={assistant.name}
             onClick={() => setAssistantId(assistant.name)}
+            className="flex items-start" // 设置 flex 布局并让子元素靠顶部对齐
           >
-            {assistant.icon}
-            <span>{assistant.title}</span>
+            <img
+              className="mr-2 h-8 w-8 rounded-full"
+              src={`/images/assistants/${assistant.name}.png`}
+            />
+            <div>
+              <h6>{assistant.title}</h6>
+              <p className="text-muted-foreground my-2">
+                {assistant.description}
+              </p>
+            </div>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

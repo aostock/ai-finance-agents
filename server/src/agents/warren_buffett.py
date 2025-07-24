@@ -3,6 +3,7 @@ This is the main entry point for the agent.
 It defines the workflow graph, state, tools, nodes and edges.
 """
 
+from pkgutil import resolve_name
 from typing_extensions import Literal
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, AIMessage
@@ -12,7 +13,9 @@ from langgraph.graph import StateGraph, END
 from langgraph.types import Command
 from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.memory import MemorySaver
-from src.common.agent_state import AgentState
+from common.agent_state import AgentState
+from llm.llm_model import model
+from nodes.search_ticker import SearchTicker
 
 
 @tool
@@ -29,11 +32,11 @@ def get_weather(location: str):
 #     return "Your tool response here."
 
 tools = [
-    get_weather
+    # get_weather
     # your_tool_here
 ]
 
-async def chat_node(state: AgentState, config: RunnableConfig) -> Command[Literal["tool_node", "__end__"]]:
+async def chat_ticker(state: AgentState, config: RunnableConfig) -> Command[Literal[END]]:
     """
     Standard chat node based on the ReAct design pattern. It handles:
     - The model to use (and binds in CopilotKit actions and the tools defined above)
@@ -44,23 +47,6 @@ async def chat_node(state: AgentState, config: RunnableConfig) -> Command[Litera
     For more about the ReAct design pattern, see: 
     https://www.perplexity.ai/search/react-agents-NcXLQhreS0WDzpVaS4m9Cg
     """
-    
-    # 1. Define the model
-    model = ChatOpenAI(model="gpt-4o")
-
-    # 2. Bind the tools to the model
-    model_with_tools = model.bind_tools(
-        [
-            *state["copilotkit"]["actions"],
-            get_weather,
-            # your_tool_here
-        ],
-
-        # 2.1 Disable parallel tool calls to avoid race conditions,
-        #     enable this for faster performance if you want to manage
-        #     the complexity of running tool calls in parallel.
-        parallel_tool_calls=False,
-    )
 
     # 3. Define the system message by which the chat model will be run
     system_message = SystemMessage(
@@ -68,23 +54,10 @@ async def chat_node(state: AgentState, config: RunnableConfig) -> Command[Litera
     )
 
     # 4. Run the model to generate a response
-    response = await model_with_tools.ainvoke([
+    response = await model.ainvoke([
         system_message,
         *state["messages"],
     ], config)
-
-    # 5. Check for tool calls in the response and handle them. We ignore
-    #    CopilotKit actions, as they are handled by CopilotKit.
-    if isinstance(response, AIMessage) and response.tool_calls:
-        actions = state["copilotkit"]["actions"]
-
-        # 5.1 Check for any non-copilotkit actions in the response and
-        #     if there are none, go to the tool node.
-        if not any(
-            action.get("name") == response.tool_calls[0].get("name")
-            for action in actions
-        ):
-            return Command(goto="tool_node", update={"messages": response})
 
     # 6. We've handled all tool calls, so we can end the graph.
     return Command(
@@ -94,12 +67,25 @@ async def chat_node(state: AgentState, config: RunnableConfig) -> Command[Litera
         }
     )
 
+search_ticker = SearchTicker[Command[Literal[END, 'chat_ticker']]]({})
+
+def planer(state: AgentState, config: RunnableConfig) -> Command[Literal[END, 'search_ticker', 'chat_ticker']]:
+    
+    return {}
+
+
+def planer_conditional(state: AgentState, config: RunnableConfig) -> Command[Literal['search_ticker', 'chat_ticker']]:
+    if state.get('ticker') is None:
+        return "search_ticker"
+    return "chat_ticker"
+
 # Define the workflow graph
 workflow = StateGraph(AgentState)
-workflow.add_node("chat_node", chat_node)
-workflow.add_node("tool_node", ToolNode(tools=tools))
-workflow.add_edge("tool_node", "chat_node")
-workflow.set_entry_point("chat_node")
+workflow.add_node("planer", planer)
+workflow.add_node("search_ticker", search_ticker)
+workflow.add_node("chat_ticker", chat_ticker)
+workflow.add_conditional_edges("planer", planer_conditional, ["search_ticker", "chat_ticker"])
+workflow.set_entry_point("planer")
 
 # Compile the workflow graph
-warren_buffett_agent = workflow.compile()
+warren_buffett = workflow.compile()
