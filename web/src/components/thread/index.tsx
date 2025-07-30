@@ -51,6 +51,7 @@ import { PageHeader } from "../core/page-header";
 import { Logo } from "../core/logo";
 import { AssistantList } from "../core/assistants";
 import { TitleTooltip } from "../core/title-tooltip";
+import { Suggestions } from "./messages/suggestions";
 
 function StickyToBottomContent(props: {
   content: ReactNode;
@@ -176,17 +177,14 @@ export function Thread() {
     prevMessageLength.current = messages.length;
   }, [messages]);
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if ((input.trim().length === 0 && contentBlocks.length === 0) || isLoading)
-      return;
+  const sendMessage = (text: string) => {
     setFirstTokenReceived(false);
 
     const newHumanMessage: Message = {
       id: uuidv4(),
       type: "human",
       content: [
-        ...(input.trim().length > 0 ? [{ type: "text", text: input }] : []),
+        ...(text.trim().length > 0 ? [{ type: "text", text: text }] : []),
         ...contentBlocks,
       ] as Message["content"],
     };
@@ -211,9 +209,15 @@ export function Thread() {
         }),
       },
     );
-
-    setInput("");
     setContentBlocks([]);
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if ((input.trim().length === 0 && contentBlocks.length === 0) || isLoading)
+      return;
+    sendMessage(input);
+    setInput("");
   };
 
   const handleRegenerate = (
@@ -234,6 +238,19 @@ export function Thread() {
   );
 
   const leftWidth = 260;
+
+  const isMessageShow = (message: Message) => {
+    console.log(
+      "message",
+      JSON.stringify(message.response_metadata),
+      message.content,
+    );
+    const response_metadata = message.response_metadata;
+    if (response_metadata && response_metadata.hide) {
+      return false;
+    }
+    return true;
+  };
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -301,7 +318,11 @@ export function Thread() {
               content={
                 <>
                   {messages
-                    .filter((m) => !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
+                    .filter(
+                      (m) =>
+                        !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX) &&
+                        isMessageShow(m),
+                    )
                     .map((message, index) =>
                       message.type === "human" ? (
                         <HumanMessage
@@ -334,7 +355,7 @@ export function Thread() {
                 </>
               }
               footer={
-                <div className="sticky bottom-0 flex flex-col items-center gap-8">
+                <div className="sticky bottom-0 flex flex-col items-center gap-6">
                   {!chatStarted && (
                     <div className="flex flex-col items-center gap-3">
                       <Logo
@@ -346,7 +367,7 @@ export function Thread() {
                   )}
 
                   <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
-
+                  <Suggestions onSubmit={sendMessage} />
                   <div
                     ref={dropRef}
                     className={cn(
@@ -381,7 +402,7 @@ export function Thread() {
                             form?.requestSubmit();
                           }
                         }}
-                        placeholder="Type your message..."
+                        placeholder="Type your message to search a ticker ..."
                         className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
                       />
 
@@ -432,6 +453,7 @@ export function Thread() {
                         ) : (
                           <Button
                             type="submit"
+                            id="chat-submit-btn"
                             className="ml-auto w-9 rounded-full shadow-md transition-all"
                             disabled={
                               isLoading ||

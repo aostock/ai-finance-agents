@@ -2,7 +2,8 @@
   "dependencies": ["."],
   "graphs": {
     "agent": "./src/agents/graph.py:graph",
-    "warren_buffett": "./src/agents/warren_buffett.py:warren_buffett"
+    "warren_buffett": "./src/agents/warren_buffett/agent.py:agent"
   },
+  "default_stream_mode": ["events"],
   "env": ".env"
 }

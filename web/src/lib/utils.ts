@@ -37,6 +37,9 @@ export function formatTimeAgo(
   dateInput: Date | string | number,
   locale = "en",
 ) {
+  if (dateInput === null || dateInput === undefined) {
+    return "";
+  }
   const timestamp =
     typeof dateInput === "object" ? dateInput : new Date(dateInput);
   const diff = (new Date().getTime() - timestamp.getTime()) / 1000; // Difference in seconds

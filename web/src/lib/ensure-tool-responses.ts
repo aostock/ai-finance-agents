@@ -24,6 +24,7 @@ export function ensureToolCallsHaveResponses(messages: Message[]): Message[] {
         type: "tool" as const,
         tool_call_id: tc.id ?? "",
         id: `${DO_NOT_RENDER_ID_PREFIX}${uuidv4()}`,
+        tags: [DO_NOT_RENDER_ID_PREFIX],
         name: tc.name,
         content: "Successfully handled tool call.",
       })) ?? []),

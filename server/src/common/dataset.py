@@ -6,9 +6,19 @@ from urllib.parse import urlencode
 REMOTE_DATASET_URL = os.getenv('REMOTE_DATASET_URL').rstrip("/")
 
 
-def get_financial_metrics(ticker, end_date=None, period='yearly'):
+def get_financial_metrics(ticker, end_date=None, period='quarterly'):
     data = _request(f'ticker/financial_metrics', query={'ticker': ticker, 'freq': period})
     # filter end_date <= data['date']
+    if end_date:
+        data = [item for item in data if item['date'] <= end_date]
+    return data
+
+def get_financial_items(ticker, items: list[str], end_date=None, period='quarterly'):
+    if items is not None and len(items) > 0:
+        items = ','.join(items)
+    else:
+        items = None
+    data = _request(f'ticker/financial_items', query={'ticker': ticker, 'items':items, 'freq': period})
     if end_date:
         data = [item for item in data if item['date'] <= end_date]
     return data

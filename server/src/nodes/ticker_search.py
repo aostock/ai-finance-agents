@@ -11,48 +11,35 @@ from langchain_core.callbacks.manager import adispatch_custom_event
 from common.agent_state import AgentState
 from common.dataset import lookup_ticker
 from llm.llm_model import model
-
-
-def get_json(s: str) -> dict:
-    if s == "" or s is None or s == "{}":
-        return {}
-    try:
-        start = s.rfind("{")
-        s = s[start:]
-        end = s.find("}") + 1
-        if end == 0:
-            r = s + "}"
-        else:
-            r = s[0:end]
-        # remove \ and \n from string
-        r = r.replace('\\', '').replace('\n', '')
-        return json.loads(r)
-    except Exception as e:
-        print('get_json error:', s, e)
-        return {}
+from common.util import get_dict_json
+import common.markdown as markdown
 
 
 T = TypeVar('T')
-class SearchTicker(Generic[T]):
+class TickerSearch(Generic[T]):
+    """
+    This class is used to handle stock ticker search logic. It utilizes an intent recognition assistant 
+    to determine if the user input contains a stock name or code. Based on the result, it looks up 
+    the corresponding stock information and finally returns the search results or a prompt indicating 
+    that no ticker was found.
+    """
+    
     def __init__(self, options: Dict[str, Any]):
         self.options = options
 
     async def __call__(self, state: AgentState, writer: StreamWriter, config: RunnableConfig) -> T:
-        if state.get('ticker') is not None:
-            return {}
-        # writer('start search ticker...')
         last_human_message = state['messages'][-1]
         messages = [
             SystemMessage(
                 content="""
-你是意图识别助手。请根据用户输入判断用户的输入中是否包含一直股票的名称，或股票的代码，如果包含，
-请输出对应的股票名称或代码，如果有股票名称，请提供股票英文名称，否则输出空字符串。
+You are an intent recognition assistant. Please determine whether the user input contains the name of a stock or a stock code. If it does,
+please output the corresponding stock name or code. If there is a stock name, please provide the English name of the stock; otherwise, output an empty string.
 
-请只输出对应的股票名称或代码的json, 输出示例：
+Please only output the JSON of the corresponding stock name or code. Example output:
 {
-    "name": "股票名称",
-    "en_name": "股票英文名称",
-    "code": "股票代码"
+    "name": "Stock Name",
+    "en_name": "Stock English Name",
+    "code": "Stock Code"
 }
 """
             ),
@@ -63,8 +50,7 @@ class SearchTicker(Generic[T]):
         response:BaseMessage = model.invoke(messages)
         
         text = response.content
-        print("SearchTickerNode", text)
-        json_result = get_json(text)
+        json_result = get_dict_json(text)
         query = json_result.get('code', '')
         if query == '':
             query = json_result.get('en_name', '')
@@ -73,19 +59,15 @@ class SearchTicker(Generic[T]):
         lookup_result = []
         if query != '':
             lookup_result = lookup_ticker(query)
-        json_markdown = f"""```TickerSelect
-{json.dumps(lookup_result)}
-```"""
+        
         if len(lookup_result) == 0:
-            return Command(
-                update={
+            return {
                     "messages": [AIMessage(content="can not find ticker, please check your input and try again")],
+                    "action": None
                 }
-            )
-        return Command(
-            update={
+        json_markdown = markdown.ticker_select({'list': lookup_result, 'selected': lookup_result[0]})
+        return {
                 "messages": [AIMessage(content=json_markdown)],
-                "ticker": lookup_result[0]
+                "action": None
             }
-        )
         

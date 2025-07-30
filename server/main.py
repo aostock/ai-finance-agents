@@ -3,7 +3,7 @@ from fastapi import FastAPI
 import uvicorn
 from copilotkit.integrations.fastapi import add_fastapi_endpoint 
 from copilotkit import CopilotKitRemoteEndpoint, LangGraphAgent 
-from agents.warren_buffett import warren_buffett
+from agents.warren_buffett.agent import agent as warren_buffett_agent
 from agents.graph import graph
  
 from dotenv import load_dotenv
@@ -21,7 +21,7 @@ sdk = CopilotKitRemoteEndpoint(
         LangGraphAgent(
             name="warren_buffett", # the name of your agent defined in langgraph.json
             description="Describe your agent here, will be used for multi-agent orchestration",
-            graph=warren_buffett, # the graph object from your langgraph import
+            graph=warren_buffett_agent, # the graph object from your langgraph import
         )
     ],
 )

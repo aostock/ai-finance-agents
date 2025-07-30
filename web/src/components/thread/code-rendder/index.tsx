@@ -7,9 +7,13 @@ import { SyntaxHighlighter } from "./syntax-highlighter";
 import { TooltipIconButton } from "@/components/thread/tooltip-icon-button";
 import { cn } from "@/lib/utils";
 import { TickerSelect } from "./ticker-select";
+import { AnalysisResult } from "./analysis-result";
+import { AnalysisData } from "./analysis-data";
 
 const renderers: Record<string, FC<string>> = {
   TickerSelect,
+  AnalysisResult,
+  AnalysisData,
 };
 
 interface CodeHeaderProps {

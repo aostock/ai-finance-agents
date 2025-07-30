@@ -25,7 +25,32 @@ import { getApiKey } from "@/lib/api-key";
 import { useThreads } from "./Thread";
 import { toast } from "sonner";
 
-export type StateType = { messages: Message[]; ui?: UIMessage[] };
+export type TickerType = {
+  ticker: string;
+  exchange: string;
+  industry_link: string;
+  industry_name: string;
+  quote_type: string;
+  rank: number;
+  regular_market_change: number;
+  regular_market_percent_change: number;
+  regular_market_price: number;
+  short_name: string;
+  time: string;
+};
+
+export type ActionType = {
+  type: "ticker_switch" | "start_analysis";
+  parameters: any;
+};
+
+export type StateType = {
+  messages: Message[];
+  ui?: UIMessage[];
+  action?: ActionType;
+  ticker?: TickerType;
+  suggestions?: string[];
+};
 
 const useTypedStream = useStream<
   StateType,
@@ -33,7 +58,9 @@ const useTypedStream = useStream<
     UpdateType: {
       messages?: Message[] | Message | string;
       ui?: (UIMessage | RemoveUIMessage)[] | UIMessage | RemoveUIMessage;
-      context?: Record<string, unknown>;
+      action?: ActionType;
+      ticker?: TickerType;
+      suggestions?: string[];
     };
     CustomEventType: UIMessage | RemoveUIMessage;
   }
@@ -85,6 +112,7 @@ const StreamSession = ({
     assistantId,
     threadId: threadId ?? null,
     onCustomEvent: (event, options) => {
+      console.log("custom_events", event);
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
         options.mutate((prev) => {
           const ui = uiMessageReducer(prev.ui ?? [], event);
@@ -280,6 +308,20 @@ export const useStreamContext = (): StreamContextType => {
     throw new Error("useStreamContext must be used within a StreamProvider");
   }
   return context;
+};
+
+export const getSuggestions = async () => {
+  const { submit } = useStreamContext();
+  const suggestionsAssistantId =
+    process.env.NEXT_PUBLIC_SUGGESTIONS_ASSISTANT_ID || "agent";
+  const result = await submit(
+    {
+      messages: [{ role: "user", content: "get suggestions" }],
+    },
+    {
+      assistantId: suggestionsAssistantId,
+    },
+  );
 };
 
 export default StreamContext;
