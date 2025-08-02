@@ -69,10 +69,8 @@ def list_str_to_sequence(data:list):
     Convert a list of string to a markdown sequence.
     """
     markdown = ''
-    i = 1
     for item in data:
-        markdown += f'{i}. {item}\n'
-        i += 1
+        markdown += f'1. {item}\n'
     return markdown
 
 

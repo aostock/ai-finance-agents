@@ -1,19 +1,19 @@
 import { parsePartialJson } from "@langchain/core/output_parsers";
 import { useStreamContext } from "@/providers/Stream";
 import { AIMessage, Checkpoint, Message } from "@langchain/langgraph-sdk";
-import { getContentString } from "../utils";
+import { getContentString } from "../../utils";
 import { BranchSwitcher, CommandBar } from "./shared";
-import { MarkdownText } from "../markdown-text";
+import { MarkdownText } from "@/components/thread/markdown-text";
 import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
 import { cn } from "@/lib/utils";
 import { ToolCalls, ToolResult } from "./tool-calls";
 import { MessageContentComplex } from "@langchain/core/messages";
 import { Fragment } from "react/jsx-runtime";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
-import { ThreadView } from "../agent-inbox";
+import { ThreadView } from "@/components/thread/agent-inbox";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { GenericInterruptView } from "./generic-interrupt";
-import { useArtifact } from "../artifact";
+import { useArtifact } from "@/components/thread/artifact";
 import {
   Collapsible,
   CollapsibleContent,

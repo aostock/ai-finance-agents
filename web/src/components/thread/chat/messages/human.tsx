@@ -1,11 +1,11 @@
 import { useStreamContext } from "@/providers/Stream";
 import { Message } from "@langchain/langgraph-sdk";
 import { useState } from "react";
-import { getContentString } from "../utils";
+import { getContentString } from "../../utils";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { BranchSwitcher, CommandBar } from "./shared";
-import { MultimodalPreview } from "@/components/thread/MultimodalPreview";
+import { MultimodalPreview } from "@/components/thread/chat/MultimodalPreview";
 import { isBase64ContentBlock } from "@/lib/multimodal-utils";
 
 function EditableContent({
@@ -74,11 +74,11 @@ export function HumanMessage({
   return (
     <div
       className={cn(
-        "group ml-auto flex items-center gap-2 w-full max-w-3xl",
+        "group ml-auto flex w-full max-w-3xl items-center gap-2",
         isEditing && "max-w-xl",
       )}
     >
-      <div className={cn("flex flex-col gap-2 w-full")}>
+      <div className={cn("flex w-full flex-col gap-2")}>
         {isEditing ? (
           <EditableContent
             value={value}

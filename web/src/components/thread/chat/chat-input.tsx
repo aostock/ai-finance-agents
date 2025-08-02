@@ -1,11 +1,12 @@
 import { FormEvent } from "react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { LoaderCircle, ArrowUp, Paperclip } from "lucide-react";
-import { Label } from "../ui/label";
-import { TitleTooltip } from "../core/title-tooltip";
+import { Label } from "@/components/ui/label";
+import { TitleTooltip } from "@/components/core/title-tooltip";
 import { ContentBlocksPreview } from "./ContentBlocksPreview";
-import { ScrollToBottom } from "../core/stick-to-bottom";
+import { ScrollToBottom } from "@/components/core/stick-to-bottom";
 import { cn } from "@/lib/utils";
+import { RichTextarea } from "./rich-textarea";
 
 interface ChatInputProps {
   input: string;
@@ -51,9 +52,9 @@ export function ChatInput({
           blocks={contentBlocks}
           onRemove={removeBlock}
         />
-        <textarea
+        <RichTextarea
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={setInput}
           onPaste={handlePaste}
           onKeyDown={(e) => {
             if (

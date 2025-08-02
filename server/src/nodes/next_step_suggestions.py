@@ -34,10 +34,9 @@ class NextStepSuggestions():
             # not show in ui and not save in db
             output = await ainvoke(messages, stream=False)
             suggestions = get_array_json(output.content)
-        content = f"""
-        ## 🔍 Next Steps Suggestions
-        {markdown.list_str_to_sequence(suggestions)}
-        """
+        content = f"""## 🔍 Next Steps Suggestions
+{markdown.list_str_to_sequence(suggestions)}
+"""
         return {"suggestions": suggestions, "messages": AIMessage(content=content)}
 
 

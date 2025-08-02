@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { motion } from "framer-motion";
 import { Sidebar } from "./sidebar";
-import { Chat } from "./chat";
+import { Chat } from "./chat/index";
 
 export function Thread() {
   const [chatHistoryOpen] = useQueryState(

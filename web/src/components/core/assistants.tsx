@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { assistants } from "@/lib/config";
 import {
   Card,
   CardContent,
@@ -31,19 +31,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-
-const assistants = [
-  {
-    name: "agent",
-    title: "Agent",
-    description: "common agent",
-  },
-  {
-    name: "warren_buffett",
-    title: "Warren Buffett",
-    description: "Warren Buffett Agent",
-  },
-];
 
 export function AssistantList() {
   const [_, setAssistantId] = useQueryState("assistantId");

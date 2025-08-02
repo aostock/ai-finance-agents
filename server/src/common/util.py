@@ -2,6 +2,8 @@ import json
 from types import SimpleNamespace
 import re
 
+from pydantic import InstanceOf
+
 def dict_to_obj(dictionary):
     if isinstance(dictionary, dict):
         return SimpleNamespace(**{k: dict_to_obj(v) for k, v in dictionary.items()})
@@ -62,5 +64,11 @@ def get_latest_message_content(state):
     # Ensure content is a string even if it's stored as a list
     content = last_message.content
     if isinstance(content, list) and len(content) > 0:
-        content = content[-1].content
+        lastMessage = content[-1]
+        if isinstance(lastMessage, dict):
+            content = lastMessage.get('content', lastMessage.get('text', ''))
+        elif hasattr(lastMessage, 'content'):
+            content = lastMessage.content
+        elif hasattr(lastMessage, 'text'):
+            content = lastMessage.text
     return content

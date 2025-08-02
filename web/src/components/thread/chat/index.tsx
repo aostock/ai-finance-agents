@@ -15,17 +15,17 @@ import {
   ArtifactContent,
   ArtifactTitle,
   useArtifactContext,
-} from "./artifact";
+} from "../artifact";
 
-import { PageHeader } from "../core/page-header";
-import { Logo } from "../core/logo";
-import { AssistantList } from "../core/assistants";
+import { PageHeader } from "@/components/core/page-header";
+import { Logo } from "@/components/core/logo";
+import { AssistantList } from "@/components/core/assistants";
 import { Suggestions } from "./messages/suggestions";
 import {
   StickToBottom,
   StickyToBottomContent,
   ScrollToBottom,
-} from "../core/stick-to-bottom";
+} from "@/components/core/stick-to-bottom";
 import { ChatContent } from "./chat-content";
 import { ChatInput } from "./chat-input";
 import { ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
@@ -185,7 +185,6 @@ export function Chat() {
 
   const leftWidth = 260;
 
-
   return (
     <div
       className={cn(
@@ -228,7 +227,11 @@ export function Chat() {
                 )}
 
                 <ScrollToBottom className="hidden md:block" />
-                <Suggestions onSubmit={sendMessage} />
+                <Suggestions
+                  onSubmit={(text) => {
+                    setInput(input + text);
+                  }}
+                />
                 <ChatInput
                   input={input}
                   setInput={setInput}
