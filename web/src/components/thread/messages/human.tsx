@@ -74,11 +74,11 @@ export function HumanMessage({
   return (
     <div
       className={cn(
-        "group ml-auto flex items-center gap-2",
-        isEditing && "w-full max-w-xl",
+        "group ml-auto flex items-center gap-2 w-full max-w-3xl",
+        isEditing && "max-w-xl",
       )}
     >
-      <div className={cn("flex flex-col gap-2", isEditing && "w-full")}>
+      <div className={cn("flex flex-col gap-2 w-full")}>
         {isEditing ? (
           <EditableContent
             value={value}

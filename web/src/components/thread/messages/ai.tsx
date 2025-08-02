@@ -116,9 +116,7 @@ function ReasoningContent({
   const [isOpen, setIsOpen] = useState(true);
   const isStreaming = content && content.length > 0 ? false : true;
   return (
-    <div
-      className={cn("text-muted bg-card w-full rounded-xl border", className)}
-    >
+    <div className={cn("text-muted bg-card rounded-xl border", className)}>
       <Collapsible
         open={isOpen}
         onOpenChange={setIsOpen}
@@ -173,10 +171,10 @@ function ReasoningContent({
             )}
           >
             <CardContent>
-              <div className="flex w-full">
+              <div>
                 <MarkdownText
                   className={cn(
-                    "prose dark:prose-invert max-w-none text-sm transition-colors duration-200",
+                    "prose dark:prose-invert text-muted-foreground text-sm transition-colors duration-200",
                     isStreaming ? "prose-primary" : "opacity-80",
                   )}
                 >
@@ -239,8 +237,8 @@ export function AssistantMessage({
   }
 
   return (
-    <div className="group mr-auto flex items-start gap-2">
-      <div className="flex flex-col gap-2">
+    <div className="group mr-auto flex w-full max-w-3xl items-start gap-2">
+      <div className="flex w-full flex-col gap-2">
         {isToolResult ? (
           <>
             <ToolResult message={message} />
