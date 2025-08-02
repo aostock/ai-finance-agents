@@ -103,7 +103,7 @@ export const TickerSelect = (code: string) => {
             onClick={() =>
               submit({
                 action: {
-                  type: "start_analysis",
+                  type: "ticker_analysis",
                   parameters: { tickers: [data.selected] },
                 },
               })

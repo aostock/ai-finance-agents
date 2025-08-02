@@ -53,3 +53,14 @@ def get_array_json(s: str) -> list:
         print('get_json error:', s, e)
         return []
 
+
+
+def get_latest_message_content(state):
+    if state.get("messages") is None or len(state["messages"]) == 0:
+        return ""
+    last_message = state["messages"][-1]
+    # Ensure content is a string even if it's stored as a list
+    content = last_message.content
+    if isinstance(content, list) and len(content) > 0:
+        content = content[-1].content
+    return content

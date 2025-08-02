@@ -111,11 +111,14 @@ function ReasoningContent({
   className?: string;
 }) {
   const reasoning_content = message?.additional_kwargs?.reasoning_content;
+  const content = message?.content;
   if (!reasoning_content) return null;
   const [isOpen, setIsOpen] = useState(true);
-  const isStreaming = true;
+  const isStreaming = content && content.length > 0 ? false : true;
   return (
-    <div className={cn("mb-6 w-full", className)}>
+    <div
+      className={cn("text-muted bg-card w-full rounded-xl border", className)}
+    >
       <Collapsible
         open={isOpen}
         onOpenChange={setIsOpen}
@@ -124,11 +127,8 @@ function ReasoningContent({
           <Button
             variant="ghost"
             className={cn(
-              "h-auto w-full justify-start rounded-xl border px-6 py-4 text-left transition-all duration-200",
-              "hover:bg-accent hover:text-accent-foreground",
-              isStreaming
-                ? "border-primary/20 bg-primary/5 shadow-sm"
-                : "border-border bg-card",
+              "h-auto w-full justify-start rounded-xl px-6 py-4 text-left transition-all duration-200",
+              "hover:text-accent-foreground",
             )}
           >
             <div className="flex w-full items-center gap-3">
@@ -149,6 +149,9 @@ function ReasoningContent({
               </span>
               {isStreaming && <Loading className="ml-2 scale-75" />}
               <div className="flex-grow" />
+              <span className="text-muted-foreground ml-4 text-xs">
+                {reasoning_content.length} characters
+              </span>
               {isOpen ? (
                 <ChevronDown
                   size={16}
@@ -163,18 +166,17 @@ function ReasoningContent({
             </div>
           </Button>
         </CollapsibleTrigger>
-        <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-up-2 data-[state=open]:slide-down-2 mt-3">
+        <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-up-2 data-[state=open]:slide-down-2">
           <Card
             className={cn(
-              "transition-all duration-200",
-              isStreaming ? "border-primary/20 bg-primary/5" : "border-border",
+              "border-0 bg-transparent transition-all duration-200",
             )}
           >
             <CardContent>
-              <div className="flex h-40 w-full overflow-y-auto">
+              <div className="flex w-full">
                 <MarkdownText
                   className={cn(
-                    "prose dark:prose-invert max-w-none transition-colors duration-200",
+                    "prose dark:prose-invert max-w-none text-sm transition-colors duration-200",
                     isStreaming ? "prose-primary" : "opacity-80",
                   )}
                 >

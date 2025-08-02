@@ -199,7 +199,7 @@ async def end_analysis(state: AgentState, config: RunnableConfig):
                 """,
             ),
         ]
-    response = await ainvoke(messages)
+    response = await ainvoke(messages, analyzer=True)
     
     return {
         "messages": response,

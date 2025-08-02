@@ -40,7 +40,7 @@ export type TickerType = {
 };
 
 export type ActionType = {
-  type: "ticker_switch" | "start_analysis";
+  type: "ticker_switch" | "ticker_analysis";
   parameters: any;
 };
 

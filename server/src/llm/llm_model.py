@@ -47,7 +47,13 @@ def get_llm():
     llm = ChatLiteLLMRouter(router=litellm_router, model_name="deepseek-chat")
     return llm
 
-async def ainvoke(messages, config = None,  stream=TRUE):
+def get_analyzer():
+    litellm_router = Router(model_list=model_list)
+    llm = ChatLiteLLMRouter(router=litellm_router, model_name="deepseek-reasoner")
+    return llm
+
+
+async def ainvoke(messages, config = None,  stream=TRUE, analyzer=False):
     # create a new UUID
     # if hidden_stream:
     #     run_id = uuid4()
@@ -59,7 +65,12 @@ async def ainvoke(messages, config = None,  stream=TRUE):
     #         "type": "hidden_stream",
     #         "message_id": message_id
     #     })
-    return await get_llm().ainvoke(messages, config, stream=False)
+    if analyzer:
+        return await get_analyzer().ainvoke(messages, config, stream=stream)
+    return await get_llm().ainvoke(messages, config, stream=stream)
+
+
+
 
 async def ainvoke2(messages, config = None, response_metadata = None):
     full_content = ""
