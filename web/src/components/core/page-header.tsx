@@ -22,6 +22,7 @@ import {
 } from "../ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { AssistantSelect } from "./assistants";
+import { Logo } from "./logo";
 // import { useArtifactContext, useArtifactOpen } from "../thread/artifact";
 
 export function PageHeader() {
@@ -47,9 +48,12 @@ export function PageHeader() {
             )}
           </Button>
         </div>
-        <div>
-          <AssistantSelect />
-        </div>
+        {!chatHistoryOpen && (
+          <div className="ml-2">
+            <Logo logoSize={5} textSize="text-lg" />
+          </div>
+        )}
+        <div>{/* <AssistantSelect /> */}</div>
       </div>
 
       <div className="flex items-center gap-4">

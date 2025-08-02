@@ -177,7 +177,7 @@ async def end_analysis(state: AgentState, config: RunnableConfig):
                 COMPREHENSIVE ANALYSIS DATA:
                 {analysis_data}
 
-                Please provide your investment decision in exactly this JSON format:
+                Please provide your investment decision in exactly this JSON format, notice to use 'AnalysisResult' before json:
                 ```AnalysisResult
                 {{
                   "signal": "bullish" | "bearish" | "neutral",

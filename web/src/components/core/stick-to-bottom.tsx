@@ -2,21 +2,26 @@ import { ReactNode } from "react";
 import {
   StickToBottom as OriginalStickToBottom,
   useStickToBottomContext,
+  type StickToBottomOptions,
 } from "use-stick-to-bottom";
 import { Button } from "../ui/button";
 import { ArrowDown } from "lucide-react";
+
+interface StickyToBottomContentProps {
+  children: ReactNode;
+  footer?: ReactNode;
+  className?: string;
+  contentClassName?: string;
+  autoScrollOnInit?: boolean;
+}
 
 function StickyToBottomContent({
   children,
   footer,
   className,
   contentClassName,
-}: {
-  children: ReactNode;
-  footer?: ReactNode;
-  className?: string;
-  contentClassName?: string;
-}) {
+  autoScrollOnInit = true,
+}: StickyToBottomContentProps) {
   const context = useStickToBottomContext();
   return (
     <div
@@ -33,6 +38,26 @@ function StickyToBottomContent({
 
       {footer}
     </div>
+  );
+}
+
+interface StickToBottomProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children">, StickToBottomOptions {
+  autoScrollOnInit?: boolean;
+  children: ReactNode;
+}
+
+function StickToBottom({ 
+  autoScrollOnInit = true,
+  children,
+  ...props
+}: StickToBottomProps) {
+  return (
+    <OriginalStickToBottom
+      initial={autoScrollOnInit}
+      {...props}
+    >
+      {children}
+    </OriginalStickToBottom>
   );
 }
 
@@ -68,7 +93,7 @@ function ScrollToBottom({
 }
 
 export {
-  OriginalStickToBottom as StickToBottom,
+  StickToBottom,
   StickyToBottomContent,
   ScrollToBottom,
   useStickToBottomContext,

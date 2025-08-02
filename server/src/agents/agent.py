@@ -20,6 +20,9 @@ import asyncio
 import uuid
 from common.util import get_dict_json, get_at_items, get_latest_message_content
 from agents.warren_buffett.agent import agent as warren_buffett_agent
+from agents.aswath_damodaran.agent import agent as aswath_damodaran_agent
+from agents.ben_graham.agent import agent as ben_graham_agent
+from agents.bill_ackman.agent import agent as bill_ackman_agent
 from llm.llm_model import ainvoke
 from nodes.ticker_search import TickerSearch
 from nodes.next_step_suggestions import NextStepSuggestions
@@ -30,7 +33,10 @@ ticker_search = TickerSearch[Command[Literal['clear_cache']]]({})
 next_step_suggestions = NextStepSuggestions({})
 
 analysis_agents = {
-    'warren_buffett': warren_buffett_agent
+    'warren_buffett': warren_buffett_agent,
+    'aswath_damodaran': aswath_damodaran_agent,
+    'ben_graham': ben_graham_agent,
+    'bill_ackman': bill_ackman_agent
 }
 
 def planner_node(state: AgentState, config: RunnableConfig):
@@ -69,7 +75,7 @@ async def intent_recognition(state: AgentState, config: RunnableConfig):
 
 ### 🔑 Key Requirements  
 - **Intent 1 (Search/query stock info)**: **ONLY** triggered by **purely informational requests** (e.g., "show", "search", "info", "details", "price of", "what is") **without transactional context**. Stock reference is primary.  
-- **Intent 2 (Analyze/ask about holding/buying/selling)**: **ONLY** triggered by **explicit transactional language** (e.g., "should I buy/sell/hold", "is it good to", "recommendation for", "advice on purchasing", "analyze [stock] for entry/exit"). Must contain **action-oriented verbs or decision-seeking phrases**.  
+- **Intent 2 (Analyze a stock or ask for holding/buying/selling)**: **ONLY** triggered by **explicit transactional language** (e.g., "analyze [stock]", "should I buy/sell/hold", "is it good to", "recommendation for", "advice on purchasing", "analyze [stock] for entry/exit"). Must contain **action-oriented verbs or decision-seeking phrases**.  
 - **Intent 3**: Requires **explicit date range** (e.g., "from [date] to [date]", "in 2023") + ≥1 stock.  
 - **Intent 4**: Requires **explicit metric specification** (e.g., "EPS", "P/E ratio", "Q3 revenue") + ≥1 stock.  
 - **Intent 5**: No stock reference **OR** no match to 1-4, give **two suggestions** to the user to match the 4 intents.  
@@ -94,7 +100,6 @@ async def intent_recognition(state: AgentState, config: RunnableConfig):
 | "Search Apple stock"              | "Should I buy Apple?"                |  
 | "What is TSLA price?"             | "Is it time to sell Tesla?"          |  
 | "Show Microsoft details"          | "Recommendation for holding MSFT"    |  
-| ❌ No action verbs                | ✅ Must contain "buy/sell/hold" or advice-seeking phrases |  
 
 **Output ONLY the JSON—validate structure before responding.**
 """

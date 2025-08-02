@@ -49,7 +49,7 @@ def get_llm():
 
 def get_analyzer():
     litellm_router = Router(model_list=model_list)
-    llm = ChatLiteLLMRouter(router=litellm_router, model_name="deepseek-reasoner")
+    llm = ChatLiteLLMRouter(router=litellm_router, model_name="deepseek-chat")
     return llm
 
 

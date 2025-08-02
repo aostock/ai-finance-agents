@@ -29,6 +29,7 @@ import {
 import { ChatContent } from "./chat-content";
 import { ChatInput } from "./chat-input";
 import { ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
+import { Assistant } from "@/lib/config";
 
 export function Chat() {
   const [artifactContext, setArtifactContext] = useArtifactContext();
@@ -206,26 +207,19 @@ export function Chat() {
       >
         <PageHeader />
 
-        <StickToBottom className="relative flex-1 overflow-hidden">
+        <StickToBottom
+          className="relative flex-1 overflow-hidden"
+          autoScrollOnInit={chatStarted}
+        >
           <StickyToBottomContent
             className={cn(
               "absolute inset-0 overflow-x-hidden overflow-y-scroll px-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent",
-              !chatStarted && "mt-[25vh] flex flex-col items-stretch",
+              !chatStarted && "flex flex-col items-stretch pt-[5vh]",
               chatStarted && "grid grid-rows-[1fr_auto]",
             )}
             contentClassName="pt-8 pb-16  max-w-3xl mx-auto flex flex-col gap-4 w-full"
             footer={
-              <div className="sticky bottom-0 flex flex-col items-center gap-6">
-                {!chatStarted && (
-                  <div className="flex flex-col items-center gap-3">
-                    <Logo
-                      logoSize={9}
-                      textSize="text-3xl"
-                    />
-                    <AssistantList />
-                  </div>
-                )}
-
+              <div className="bg-background/80 sticky bottom-0 flex flex-col items-center gap-6 backdrop-blur-md">
                 <ScrollToBottom className="hidden md:block" />
                 <Suggestions
                   onSubmit={(text) => {
@@ -248,6 +242,19 @@ export function Chat() {
               </div>
             }
           >
+            {!chatStarted && (
+              <div className="flex flex-col items-center gap-3">
+                <Logo
+                  logoSize={9}
+                  textSize="text-3xl"
+                />
+                <AssistantList
+                  onSelect={(assistant: Assistant) => {
+                    setInput(`@${assistant.name} ${input}`);
+                  }}
+                />
+              </div>
+            )}
             <ChatContent
               messages={messages}
               isLoading={isLoading}

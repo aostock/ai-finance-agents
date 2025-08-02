@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { assistants } from "@/lib/config";
+import { assistants, Assistant } from "@/lib/config";
 import {
   Card,
   CardContent,
@@ -32,15 +32,14 @@ import {
   CardTitle,
 } from "../ui/card";
 
-export function AssistantList() {
-  const [_, setAssistantId] = useQueryState("assistantId");
+export function AssistantList({ onSelect }: { onSelect: (assistant: Assistant) => void }) {
   return (
-    <div className="mt-10 flex w-3xl gap-4">
+    <div className="mt-10 grid w-3xl grid-cols-2 gap-4">
       {assistants.map((assistant) => (
         <Card
           key={assistant.name}
-          className="hover:bg-muted relative w-1/2 cursor-pointer"
-          onClick={() => setAssistantId(assistant.name)}
+          className="hover:bg-muted relative cursor-pointer"
+          onClick={() => onSelect(assistant)}
         >
           <Button
             className="absolute right-1 bottom-1"
@@ -95,7 +94,7 @@ export function AssistantSelect() {
           <DropdownMenuItem
             key={assistant.name}
             onClick={() => setAssistantId(assistant.name)}
-            className="flex items-start" // 设置 flex 布局并让子元素靠顶部对齐
+            className="flex max-w-xl items-start" // 设置 flex 布局并让子元素靠顶部对齐
           >
             <img
               className="mr-2 h-8 w-8 rounded-full"

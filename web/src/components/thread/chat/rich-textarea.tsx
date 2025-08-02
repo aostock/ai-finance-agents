@@ -202,7 +202,7 @@ export function RichTextarea({
       {showSuggestions && (
         <div
           ref={suggestionsRef}
-          className="bg-popover absolute bottom-full z-50 mb-2 w-full max-w-md rounded-md border shadow-lg"
+          className="bg-popover absolute bottom-full z-50 mb-2 max-h-120 w-full max-w-md overflow-y-auto rounded-md border shadow-lg"
         >
           <div className="p-1">
             {suggestions.map((mention, index) => (

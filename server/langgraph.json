@@ -2,7 +2,23 @@
   "dependencies": ["."],
   "graphs": {
     "agent": "./src/agents/agent.py:agent",
-    "warren_buffett": "./src/agents/warren_buffett/agent.py:agent"
+    "warren_buffett": "./src/agents/warren_buffett/agent.py:agent",
+    "aswath_damodaran": "./src/agents/aswath_damodaran/agent.py:agent",
+    "ben_graham": "./src/agents/ben_graham/agent.py:agent",
+    "bill_ackman": "./src/agents/bill_ackman/agent.py:agent",
+    "cathie_wood": "./src/agents/cathie_wood/agent.py:agent",
+    "charlie_munger": "./src/agents/charlie_munger/agent.py:agent",
+    "fundamentals": "./src/agents/fundamentals/agent.py:agent",
+    "michael_burry": "./src/agents/michael_burry/agent.py:agent",
+    "peter_lynch": "./src/agents/peter_lynch/agent.py:agent",
+    "phil_fisher": "./src/agents/phil_fisher/agent.py:agent",
+    "portfolio_manager": "./src/agents/portfolio_manager/agent.py:agent",
+    "rakesh_jhunjhunwala": "./src/agents/rakesh_jhunjhunwala/agent.py:agent",
+    "risk_manager": "./src/agents/risk_manager/agent.py:agent",
+    "sentiment": "./src/agents/sentiment/agent.py:agent",
+    "stanley_druckenmiller": "./src/agents/stanley_druckenmiller/agent.py:agent",
+    "technicals": "./src/agents/technicals/agent.py:agent",
+    "valuation": "./src/agents/valuation/agent.py:agent"
   },
   "default_stream_mode": ["events"],
   "env": ".env"

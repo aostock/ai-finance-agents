@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 export function Logo({ logoSize = 7, textSize = "text-xl" }) {
   return (
-    <div className="flex">
+    <div className="flex items-center">
       <div className="">
         <img
           src="/logo.svg"
