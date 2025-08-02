@@ -39,9 +39,9 @@ export const TickerSelect = (code: string) => {
   const { submit, isLoading } = useStreamContext();
   if (data.list.length > 0) {
     return (
-      <Card className="w-[400px]">
+      <Card className="mb-2 w-[400px]">
         <CardHeader>
-          <CardTitle>{data.selected.ticker}</CardTitle>
+          <CardTitle>{data.selected.symbol}</CardTitle>
           <CardDescription>{data.selected.short_name}</CardDescription>
           <CardAction>{data.selected.exchange}</CardAction>
         </CardHeader>
@@ -71,7 +71,7 @@ export const TickerSelect = (code: string) => {
               align="start"
             >
               {data.list.map((item) => (
-                <DropdownMenuGroup key={item.ticker}>
+                <DropdownMenuGroup key={item.symbol}>
                   <DropdownMenuItem
                     className="flex-col items-start"
                     onClick={() =>
@@ -84,7 +84,7 @@ export const TickerSelect = (code: string) => {
                     }
                   >
                     <div className="flex w-full items-center justify-between">
-                      {item.ticker}
+                      {item.symbol}
                       <DropdownMenuShortcut>
                         {item.exchange}
                       </DropdownMenuShortcut>
@@ -104,7 +104,7 @@ export const TickerSelect = (code: string) => {
               submit({
                 action: {
                   type: "start_analysis",
-                  parameters: { ticker: data.selected },
+                  parameters: { tickers: [data.selected] },
                 },
               })
             }

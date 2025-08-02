@@ -1,7 +1,7 @@
 from common.agent_state import AgentState
 from langchain_core.runnables import RunnableConfig
 from typing import Dict, Any
-from llm.llm_model import model
+from llm.llm_model import ainvoke
 
 
 class LLMNode():
@@ -12,6 +12,6 @@ class LLMNode():
     def __init__(self, options: Dict[str, Any]):
         self.options = options
 
-    def __call__(self, state: AgentState, config: RunnableConfig) -> Dict[str, Any]:
-        output = model.invoke(self.options["messages"])
+    async def __call__(self, state: AgentState, config: RunnableConfig) -> Dict[str, Any]:
+        output = await ainvoke(self.options["messages"])
         return {"messages": [output]}

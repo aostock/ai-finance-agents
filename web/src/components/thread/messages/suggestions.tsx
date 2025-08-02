@@ -12,7 +12,7 @@ export const Suggestions = ({
   if (values.suggestions) {
     suggestions = values.suggestions;
   } else {
-    suggestions = ["About Apple Inc.", "About Bank of China"];
+    suggestions = ["Query Apple Inc.", "Query Bank of China"];
   }
   return (
     <div className="flex max-w-3xl flex-wrap gap-2">

@@ -7,4 +7,4 @@ class AgentConfiguration(TypedDict):
     See: https://langchain-ai.github.io/langgraph/cloud/how-tos/configuration_cloud/
     """
 
-    my_configurable_param: str
+    settings: Dict[str, Any]

@@ -26,7 +26,7 @@ import { useThreads } from "./Thread";
 import { toast } from "sonner";
 
 export type TickerType = {
-  ticker: string;
+  symbol: string;
   exchange: string;
   industry_link: string;
   industry_name: string;
@@ -48,8 +48,8 @@ export type StateType = {
   messages: Message[];
   ui?: UIMessage[];
   action?: ActionType;
-  ticker?: TickerType;
   suggestions?: string[];
+  context?: Record<string, any>;
 };
 
 const useTypedStream = useStream<
@@ -119,6 +119,9 @@ const StreamSession = ({
           return { ...prev, ui };
         });
       }
+    },
+    onUpdateEvent: (event) => {
+      console.log("update_events", event);
     },
     onThreadId: (id) => {
       setThreadId(id);

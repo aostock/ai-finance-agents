@@ -20,6 +20,7 @@ dependencies = [
     "langchain-core",
     "langgraph-cli[inmem]",
     "debugpy>=1.8.14",
+    "langchain-litellm>=0.2.2",
 ]
 
 [build-system]

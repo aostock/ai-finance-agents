@@ -14,6 +14,16 @@ import { ThreadView } from "../agent-inbox";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { GenericInterruptView } from "./generic-interrupt";
 import { useArtifact } from "../artifact";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronRight, Lightbulb } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loading } from "@/components/core/loading";
+import { useState } from "react";
 
 function CustomComponent({
   message,
@@ -93,6 +103,92 @@ function Interrupt({
   );
 }
 
+function ReasoningContent({
+  message,
+  className,
+}: {
+  message: Message | undefined;
+  className?: string;
+}) {
+  const reasoning_content = message?.additional_kwargs?.reasoning_content;
+  if (!reasoning_content) return null;
+  const [isOpen, setIsOpen] = useState(true);
+  const isStreaming = true;
+  return (
+    <div className={cn("mb-6 w-full", className)}>
+      <Collapsible
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
+        <CollapsibleTrigger asChild>
+          <Button
+            variant="ghost"
+            className={cn(
+              "h-auto w-full justify-start rounded-xl border px-6 py-4 text-left transition-all duration-200",
+              "hover:bg-accent hover:text-accent-foreground",
+              isStreaming
+                ? "border-primary/20 bg-primary/5 shadow-sm"
+                : "border-border bg-card",
+            )}
+          >
+            <div className="flex w-full items-center gap-3">
+              <Lightbulb
+                size={18}
+                className={cn(
+                  "shrink-0 transition-colors duration-200",
+                  isStreaming ? "text-primary" : "text-muted-foreground",
+                )}
+              />
+              <span
+                className={cn(
+                  "leading-none font-semibold transition-colors duration-200",
+                  isStreaming ? "text-primary" : "text-foreground",
+                )}
+              >
+                Thinking
+              </span>
+              {isStreaming && <Loading className="ml-2 scale-75" />}
+              <div className="flex-grow" />
+              {isOpen ? (
+                <ChevronDown
+                  size={16}
+                  className="text-muted-foreground transition-transform duration-200"
+                />
+              ) : (
+                <ChevronRight
+                  size={16}
+                  className="text-muted-foreground transition-transform duration-200"
+                />
+              )}
+            </div>
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-up-2 data-[state=open]:slide-down-2 mt-3">
+          <Card
+            className={cn(
+              "transition-all duration-200",
+              isStreaming ? "border-primary/20 bg-primary/5" : "border-border",
+            )}
+          >
+            <CardContent>
+              <div className="flex h-40 w-full overflow-y-auto">
+                <MarkdownText
+                  className={cn(
+                    "prose dark:prose-invert max-w-none transition-colors duration-200",
+                    isStreaming ? "prose-primary" : "opacity-80",
+                  )}
+                >
+                  {reasoning_content}
+                </MarkdownText>
+              </div>
+            </CardContent>
+          </Card>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
+}
+
 export function AssistantMessage({
   message,
   isLoading,
@@ -154,6 +250,7 @@ export function AssistantMessage({
           </>
         ) : (
           <>
+            <ReasoningContent message={message} />
             {contentString.length > 0 && (
               <div className="py-1">
                 <MarkdownText>{contentString}</MarkdownText>

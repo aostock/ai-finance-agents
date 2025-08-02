@@ -124,7 +124,18 @@ export function Thread() {
   const stream = useStreamContext();
   const messages = stream.messages;
   const isLoading = stream.isLoading;
-
+  const messageMetadatas = [];
+  for (const message of messages) {
+    messageMetadatas.push(stream.getMessagesMetadata(message));
+  }
+  if (
+    messages.length > 0 &&
+    stream.isLoading &&
+    messages[messages.length - 1].type === "ai"
+  ) {
+    const lastMessage = messages[messages.length - 1];
+    console.log("lastMessage", messages, lastMessage);
+  }
   const lastError = useRef<string | undefined>(undefined);
 
   const setThreadId = (id: string | null) => {
@@ -240,11 +251,6 @@ export function Thread() {
   const leftWidth = 260;
 
   const isMessageShow = (message: Message) => {
-    console.log(
-      "message",
-      JSON.stringify(message.response_metadata),
-      message.content,
-    );
     const response_metadata = message.response_metadata;
     if (response_metadata && response_metadata.hide) {
       return false;

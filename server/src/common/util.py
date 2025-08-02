@@ -1,5 +1,6 @@
 import json
 from types import SimpleNamespace
+import re
 
 def dict_to_obj(dictionary):
     if isinstance(dictionary, dict):
@@ -13,9 +14,9 @@ def get_dict_json(s: str) -> dict:
     if s == "" or s is None or s == "{}":
         return {}
     try:
-        start = s.rfind("{")
+        start = s.find("{")
         s = s[start:]
-        end = s.find("}") + 1
+        end = s.rfind("}") + 1
         if end == 0:
             r = s + "}"
         else:
@@ -27,6 +28,12 @@ def get_dict_json(s: str) -> dict:
         print('get_json error:', s, e)
         return {}
 
+def get_at_items(content: str):
+    """
+    从字符串content中解析出所有的 @[item_name] 的内容， item_name 是动态的字符内容，返回一个列表
+    """
+    items = re.findall(r'@(\w+)', content)
+    return items
 
 def get_array_json(s: str) -> list:
     if s == "" or s is None or s == "[]":

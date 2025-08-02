@@ -5,8 +5,6 @@ It defines the workflow graph, state, tools, nodes and edges.
 
 from pkgutil import resolve_name
 import time
-
-from agents.planner import planner
 from common.agent_state import AgentState
 from common.util import get_dict_json
 from langchain.tools import tool
@@ -28,13 +26,13 @@ from agents.warren_buffett.moat_analysis import MoatAnalysis
 from agents.warren_buffett.management_quality_analysis import ManagementQualityAnalysis
 
 
-from nodes.next_step_suggestions import NextStepSuggestionsNode
+from nodes.next_step_suggestions import NextStepSuggestions
 
 from nodes.ticker_search import TickerSearch
 from typing_extensions import Literal
 from common import markdown, dataset
 
-next_step_suggestions_node = NextStepSuggestionsNode({})
+next_step_suggestions_node = NextStepSuggestions({})
 fundamental_analysis_node = FundamentalAnalysis({})
 consistency_analysis_node = ConsistencyAnalysis({})
 pricing_power_analysis_node = PricingPowerAnalysis({})
@@ -44,10 +42,15 @@ moat_analysis_node = MoatAnalysis({})
 management_quality_analysis_node = ManagementQualityAnalysis({})
 
 async def start_analysis(state: AgentState, config: RunnableConfig):
-    ticker = state.get('action').get('parameters').get('ticker')
-    end_date = state.get('end_date')
+    
+    end_date = state.get('action').get('parameters').get('end_date')
     end_date = end_date if end_date else time.strftime("%Y-%m-%d")
-    metrics = dataset.get_financial_items(ticker.get('ticker'), [
+
+    context = state.get('context')
+    
+    ticker = context.get('current_task').get('ticker')
+    
+    metrics = dataset.get_financial_items(ticker.get('symbol'), [
         "return_on_equity","debt_to_equity","operating_margin","current_ratio","return_on_invested_capital","asset_turnover","market_cap",
             "capital_expenditure",
             "depreciation_and_amortization",
@@ -63,16 +66,16 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
             "free_cash_flow",
             "gross_margin",
         ], end_date, period="yearly")
-    context = state.get('context')
+    
     context['metrics'] = metrics
     return {
         'context': context,
-        'messages':[AIMessage(content=markdown.to_h2('Analysis for '+ ticker.get('ticker')))]
+        'messages':[AIMessage(content=markdown.to_h2('Analysis for '+ ticker.get('symbol')))]
     }
 
 async def end_analysis(state: AgentState, config: RunnableConfig):
-    ticker = state.get('action').get('parameters').get('ticker')
     context = state.get('context')
+    ticker = context.get('current_task').get('ticker')
     analysis_data = context.get('analysis_data')
 
     # Calculate total score without circle of competence (LLM will handle that)
@@ -169,7 +172,7 @@ async def end_analysis(state: AgentState, config: RunnableConfig):
             ),
             (
                 "human",
-                f"""Analyze this investment opportunity for {ticker.get('ticker')} ({ticker.get('short_name')}):
+                f"""Analyze this investment opportunity for {ticker.get('symbol')} ({ticker.get('short_name')}):
 
                 COMPREHENSIVE ANALYSIS DATA:
                 {analysis_data}
@@ -196,25 +199,18 @@ async def end_analysis(state: AgentState, config: RunnableConfig):
                 """,
             ),
         ]
-    response = await ainvoke(messages, response_metadata={})
+    response = await ainvoke(messages)
     
     return {
         "messages": response,
         "action": None,
-        "context":{}
     }
 
 
-def planner_conditional(state: AgentState, config: RunnableConfig):
-    if state.get('action') is not None and state.get('action')['type'] == "start_analysis":
-        return "start_analysis"
-    return END
 
 # Define the workflow graph
 workflow = StateGraph(AgentState)
-workflow.add_node("planner", planner)
 workflow.add_node("start_analysis", start_analysis)
-workflow.add_node("next_step_suggestions", next_step_suggestions_node)
 
 workflow.add_node("fundamental_analysis", fundamental_analysis_node)
 workflow.add_node("consistency_analysis", consistency_analysis_node)
@@ -226,7 +222,6 @@ workflow.add_node("intrinsic_value_analysis", intrinsic_value_analysis_node)
 
 workflow.add_node("end_analysis", end_analysis)
 
-workflow.add_conditional_edges("planner", planner_conditional, ["start_analysis", END])
 workflow.add_edge("start_analysis", "fundamental_analysis")
 workflow.add_edge("fundamental_analysis", "consistency_analysis")
 workflow.add_edge("consistency_analysis", "moat_analysis")
@@ -235,8 +230,8 @@ workflow.add_edge("pricing_power_analysis", "book_value_growth_analysis")
 workflow.add_edge("book_value_growth_analysis", "management_quality_analysis")
 workflow.add_edge("management_quality_analysis", "intrinsic_value_analysis")
 workflow.add_edge("intrinsic_value_analysis", "end_analysis")
-workflow.add_edge("end_analysis", END)
-workflow.set_entry_point("planner")
 
+workflow.set_entry_point("start_analysis")
+workflow.set_finish_point("end_analysis")
 # Compile the workflow graph
 agent = workflow.compile()

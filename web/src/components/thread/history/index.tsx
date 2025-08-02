@@ -142,6 +142,8 @@ export default function ThreadHistory() {
     archiveThread,
   } = useThreads();
 
+  const [assistantId] = useQueryState("assistantId");
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     setThreadsLoading(true);
@@ -149,7 +151,7 @@ export default function ThreadHistory() {
       .then(setThreads)
       .catch(console.error)
       .finally(() => setThreadsLoading(false));
-  }, []);
+  }, [assistantId]);
 
   return (
     <>
