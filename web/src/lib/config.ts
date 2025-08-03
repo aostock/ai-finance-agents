@@ -107,6 +107,12 @@ export const assistants: Assistant[] = [
       "Focuses on technical analysis using trend, momentum, volatility, and statistical indicators",
   },
   {
+    name: "trading",
+    title: "Trading Assistant",
+    description:
+      "Professional trading assistant providing market analysis, sentiment analysis, and trading signals",
+  },
+  {
     name: "valuation",
     title: "Valuation Analysis",
     description:

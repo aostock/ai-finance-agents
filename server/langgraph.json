@@ -18,6 +18,7 @@
     "sentiment": "./src/agents/sentiment/agent.py:agent",
     "stanley_druckenmiller": "./src/agents/stanley_druckenmiller/agent.py:agent",
     "technicals": "./src/agents/technicals/agent.py:agent",
+    "trading": "./src/agents/trading/agent.py:agent",
     "valuation": "./src/agents/valuation/agent.py:agent"
   },
   "http": {

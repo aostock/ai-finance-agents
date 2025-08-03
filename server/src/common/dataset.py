@@ -30,8 +30,16 @@ def get_insider_transactions(symbol: str, end_date: str = None) -> list[dict]:
     data = _request(f'ticker/insider_transactions', query={'symbol': symbol})
     # filter start_date <= end_date
     if end_date:
-        data = [item for item in data if item['date'] <= end_date]
+        data = [item for item in data if item['start_date'] <= end_date]
     return data
+
+def get_insider_roster_holders(symbol: str, end_date: str = None) -> list[dict]:
+    data = _request(f'ticker/insider_roster_holders', query={'symbol': symbol})
+    # filter start_date <= end_date
+    if end_date:
+        data = [item for item in data if item['latest_transaction_date'] <= end_date]
+    return data
+
 
 def get_news(symbol: str, end_date: str = None) -> list[dict]:
     data = _request(f'ticker/news', query={'symbol': symbol, 'count': 200})

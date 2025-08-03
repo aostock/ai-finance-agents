@@ -23,6 +23,20 @@ from agents.warren_buffett.agent import agent as warren_buffett_agent
 from agents.aswath_damodaran.agent import agent as aswath_damodaran_agent
 from agents.ben_graham.agent import agent as ben_graham_agent
 from agents.bill_ackman.agent import agent as bill_ackman_agent
+from agents.cathie_wood.agent import agent as cathie_wood_agent
+from agents.charlie_munger.agent import agent as charlie_munger_agent
+from agents.fundamentals.agent import agent as fundamentals_agent
+from agents.michael_burry.agent import agent as michael_burry_agent
+from agents.peter_lynch.agent import agent as peter_lynch_agent
+from agents.phil_fisher.agent import agent as phil_fisher_agent
+from agents.portfolio_manager.agent import agent as portfolio_manager_agent
+from agents.rakesh_jhunjhunwala.agent import agent as rakesh_jhunjhunwala_agent
+from agents.risk_manager.agent import agent as risk_manager_agent
+from agents.sentiment.agent import agent as sentiment_agent
+from agents.stanley_druckenmiller.agent import agent as stanley_druckenmiller_agent
+from agents.technicals.agent import agent as technicals_agent
+from agents.trading.agent import agent as trading_agent
+from agents.valuation.agent import agent as valuation_agent
 from llm.llm_model import ainvoke
 from nodes.ticker_search import TickerSearch
 from nodes.next_step_suggestions import NextStepSuggestions
@@ -36,7 +50,21 @@ analysis_agents = {
     'warren_buffett': warren_buffett_agent,
     'aswath_damodaran': aswath_damodaran_agent,
     'ben_graham': ben_graham_agent,
-    'bill_ackman': bill_ackman_agent
+    'bill_ackman': bill_ackman_agent,
+    'cathie_wood': cathie_wood_agent,
+    'charlie_munger': charlie_munger_agent,
+    'fundamentals': fundamentals_agent,
+    'michael_burry': michael_burry_agent,
+    'peter_lynch': peter_lynch_agent,
+    'phil_fisher': phil_fisher_agent,
+    'portfolio_manager': portfolio_manager_agent,
+    'rakesh_jhunjhunwala': rakesh_jhunjhunwala_agent,
+    'risk_manager': risk_manager_agent,
+    'sentiment': sentiment_agent,
+    'stanley_druckenmiller': stanley_druckenmiller_agent,
+    'technicals': technicals_agent,
+    'trading': trading_agent,
+    'valuation': valuation_agent,
 }
 
 def planner_node(state: AgentState, config: RunnableConfig):
