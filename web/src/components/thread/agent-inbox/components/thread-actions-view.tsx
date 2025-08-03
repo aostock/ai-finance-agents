@@ -85,7 +85,7 @@ export function ThreadActionsView({
   const { settings } = useThreads();
 
   const handleOpenInStudio = () => {
-    if (!settings.langgraphServerApiUrl) {
+    if (!settings.serverApiUrl) {
       toast.error("Error", {
         description: "Please set the LangGraph deployment URL in settings.",
         duration: 5000,
@@ -96,7 +96,7 @@ export function ThreadActionsView({
     }
 
     const studioUrl = constructOpenInStudioURL(
-      settings.langgraphServerApiUrl,
+      settings.serverApiUrl,
       threadId ?? undefined,
     );
     window.open(studioUrl, "_blank");
@@ -115,7 +115,7 @@ export function ThreadActionsView({
           {threadId && <ThreadIdCopyable threadId={threadId} />}
         </div>
         <div className="flex flex-row items-center justify-start gap-2">
-          {settings.langgraphServerApiUrl && (
+          {settings.serverApiUrl && (
             <Button
               size="sm"
               variant="outline"

@@ -1,9 +1,9 @@
 // Define the settings structure
 export interface Settings {
   // General settings
-  langgraphServerApiUrl: string;
+  serverApiUrl: string;
   assistantId: string;
-  langsmithApiKey?: string | undefined;
+  serverApiKey?: string | undefined;
 
   // Data settings
   remoteFinancialDataApiUrl: string;
@@ -26,9 +26,9 @@ export interface Settings {
 
 // Default settings
 export const DEFAULT_SETTINGS: Settings = {
-  langgraphServerApiUrl: "http://localhost:2024",
+  serverApiUrl: "http://localhost:2024",
   assistantId: "agent",
-  langsmithApiKey: undefined,
+  serverApiKey: undefined,
   remoteFinancialDataApiUrl: "http://127.0.0.1:8000/",
   remoteFinancialDataApiKey: "test",
   intentRecognitionModel: {

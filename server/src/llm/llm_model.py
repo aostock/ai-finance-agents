@@ -49,14 +49,15 @@ async def ainvoke(messages, config: RunnableConfig,  stream=TRUE, analyzer=False
 
 
 
-async def ainvoke2(messages, config = None, response_metadata = None):
+async def ainvoke2(messages, config: RunnableConfig, response_metadata = None):
     full_content = ""
     message_id = None
     final_response_metadata = {}
     if response_metadata is None:
         response_metadata = {}
     final_response_metadata.update(response_metadata)
-    async for event in get_llm().astream_events(messages, config=config, version="v2"):
+    settings = Settings(config)
+    async for event in get_llm(settings).astream_events(messages, config=config, version="v2"):
         if event["event"] == "on_chat_model_stream":
             chunk = event["data"]["chunk"]
             if chunk.content:

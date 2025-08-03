@@ -1,9 +1,7 @@
 "use client";
 
 import { validate } from "uuid";
-import { getApiKey } from "@/lib/api-key";
 import { Thread } from "@langchain/langgraph-sdk";
-import { useQueryState } from "nuqs";
 import {
   createContext,
   useContext,
@@ -55,7 +53,7 @@ export function ThreadProvider({ children }: { children: ReactNode }) {
   >;
 
   const getThreads = useCallback(async (): Promise<Thread[]> => {
-    if (!settings.langgraphServerApiUrl || !settings.assistantId) {
+    if (!settings.serverApiUrl || !settings.assistantId) {
       return [];
     }
     const client = createClient(settings);
@@ -71,7 +69,7 @@ export function ThreadProvider({ children }: { children: ReactNode }) {
   }, [settings]);
 
   const archiveThread = async (threadId: string) => {
-    if (!settings.langgraphServerApiUrl || !settings.assistantId) return;
+    if (!settings.serverApiUrl || !settings.assistantId) return;
     const client = createClient(settings);
     await client.threads.delete(threadId);
     setThreads(threads.filter((t) => t.thread_id !== threadId));

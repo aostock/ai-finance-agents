@@ -17,13 +17,6 @@ import {
   type RemoveUIMessage,
 } from "@langchain/langgraph-sdk/react-ui";
 import { useQueryState } from "nuqs";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { LangGraphLogoSVG } from "@/components/icons/langgraph";
-import { Label } from "@/components/ui/label";
-import { ArrowRight } from "lucide-react";
-import { PasswordInput } from "@/components/ui/password-input";
-import { getApiKey } from "@/lib/api-key";
 import { useThreads } from "./Thread";
 import { toast } from "sonner";
 import { Settings } from "@/components/settings";
@@ -103,8 +96,8 @@ const StreamSession = ({ children }: { children: ReactNode }) => {
   const { getThreads, setThreads, settings } = useThreads();
 
   const streamValue = useTypedStream({
-    apiUrl: settings.langgraphServerApiUrl,
-    apiKey: settings.langsmithApiKey,
+    apiUrl: settings.serverApiUrl,
+    apiKey: settings.serverApiKey,
     assistantId: settings.assistantId,
     threadId: threadId ?? null,
     defaultHeaders: settings
@@ -133,26 +126,25 @@ const StreamSession = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    if (settings && settings.langgraphServerApiUrl) {
-      checkGraphStatus(
-        settings.langgraphServerApiUrl,
-        settings.langsmithApiKey,
-      ).then((ok) => {
-        if (!ok) {
-          toast.error("Failed to connect to LangGraph server", {
-            description: () => (
-              <p>
-                Please ensure your graph is running at{" "}
-                <code>{settings.langgraphServerApiUrl}</code> and your API key
-                is correctly set (if connecting to a deployed graph).
-              </p>
-            ),
-            duration: 10000,
-            richColors: true,
-            closeButton: true,
-          });
-        }
-      });
+    if (settings && settings.serverApiUrl) {
+      checkGraphStatus(settings.serverApiUrl, settings.serverApiKey).then(
+        (ok) => {
+          if (!ok) {
+            toast.error("Failed to connect to LangGraph server", {
+              description: () => (
+                <p>
+                  Please ensure your graph is running at{" "}
+                  <code>{settings.serverApiUrl}</code> and your API key is
+                  correctly set (if connecting to a deployed graph).
+                </p>
+              ),
+              duration: 10000,
+              richColors: true,
+              closeButton: true,
+            });
+          }
+        },
+      );
     }
   }, [settings]);
 

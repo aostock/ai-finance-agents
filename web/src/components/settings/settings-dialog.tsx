@@ -43,7 +43,7 @@ export function SettingsDialog() {
     const hasMissingRequiredSettings = () => {
       if (!settings) return true;
       return (
-        !settings.langgraphServerApiUrl ||
+        !settings.serverApiUrl ||
         !settings.assistantId ||
         !settings.remoteFinancialDataApiUrl ||
         !settings.remoteFinancialDataApiKey ||
@@ -77,8 +77,8 @@ export function SettingsDialog() {
     }
 
     // General settings validation
-    if (!localSettings.langgraphServerApiUrl) {
-      newErrors.langgraphServerApiUrl = "Langgraph server API URL is required";
+    if (!localSettings.serverApiUrl) {
+      newErrors.serverApiUrl = "Langgraph server API URL is required";
     }
     if (!localSettings.assistantId) {
       newErrors.assistantId = "Assistant ID is required";
@@ -121,9 +121,7 @@ export function SettingsDialog() {
 
     switch (tab) {
       case "general":
-        return (
-          !localSettings.langgraphServerApiUrl || !localSettings.assistantId
-        );
+        return !localSettings.serverApiUrl || !localSettings.assistantId;
       case "data":
         return (
           !localSettings.remoteFinancialDataApiUrl ||
@@ -222,21 +220,17 @@ export function SettingsDialog() {
               className="mt-4 space-y-4"
             >
               <div className="space-y-2">
-                <Label htmlFor="langgraphServerApiUrl">
-                  Langgraph Server API URL *
-                </Label>
+                <Label htmlFor="serverApiUrl">Langgraph Server API URL *</Label>
                 <Input
-                  id="langgraphServerApiUrl"
-                  value={localSettings?.langgraphServerApiUrl || ""}
+                  id="serverApiUrl"
+                  value={localSettings?.serverApiUrl || ""}
                   onChange={(e) =>
-                    updateSetting("langgraphServerApiUrl", e.target.value)
+                    updateSetting("serverApiUrl", e.target.value)
                   }
                   placeholder="http://localhost:2024"
                 />
-                {errors.langgraphServerApiUrl && (
-                  <p className="text-sm text-red-500">
-                    {errors.langgraphServerApiUrl}
-                  </p>
+                {errors.serverApiUrl && (
+                  <p className="text-sm text-red-500">{errors.serverApiUrl}</p>
                 )}
               </div>
 
@@ -254,12 +248,12 @@ export function SettingsDialog() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="langsmithApiKey">Langsmith API Key</Label>
+                <Label htmlFor="serverApiKey">Langsmith API Key</Label>
                 <Input
-                  id="langsmithApiKey"
-                  value={localSettings?.langsmithApiKey || ""}
+                  id="serverApiKey"
+                  value={localSettings?.serverApiKey || ""}
                   onChange={(e) =>
-                    updateSetting("langsmithApiKey", e.target.value)
+                    updateSetting("serverApiKey", e.target.value)
                   }
                   placeholder="sk-..."
                 />
