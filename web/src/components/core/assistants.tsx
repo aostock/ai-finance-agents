@@ -89,7 +89,7 @@ export function AssistantSelect() {
           </Button>
         </DropdownMenuTrigger>
       </TitleTooltip>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="max-h-96 overflow-y-auto">
         {assistants.map((assistant) => (
           <DropdownMenuItem
             key={assistant.name}

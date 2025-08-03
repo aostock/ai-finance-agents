@@ -32,7 +32,7 @@ class NextStepSuggestions():
             messages.append({"role": "system", "content": prompt})
 
             # not show in ui and not save in db
-            output = await ainvoke(messages, stream=False)
+            output = await ainvoke(messages, config, stream=False)
             suggestions = get_array_json(output.content)
         content = f"""## 🔍 Next Steps Suggestions
 {markdown.list_str_to_sequence(suggestions)}

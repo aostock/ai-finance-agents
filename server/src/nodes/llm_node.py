@@ -13,5 +13,5 @@ class LLMNode():
         self.options = options
 
     async def __call__(self, state: AgentState, config: RunnableConfig) -> Dict[str, Any]:
-        output = await ainvoke(self.options["messages"])
+        output = await ainvoke(self.options["messages"], config)
         return {"messages": [output]}

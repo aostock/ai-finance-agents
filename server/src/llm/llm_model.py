@@ -15,6 +15,8 @@ from typing import Optional, Any, Union
 from langchain.callbacks.base import AsyncCallbackHandler
 from langchain_core.outputs import ChatGenerationChunk, GenerationChunk, LLMResult
 from langchain_core.language_models.chat_models import _LC_ID_PREFIX
+from langchain_core.runnables import RunnableConfig
+from common.settings import Settings
 
 
 model_list = [
@@ -42,18 +44,18 @@ model_list = [
     },
 ]
 
-def get_llm():
-    litellm_router = Router(model_list=model_list)
-    llm = ChatLiteLLMRouter(router=litellm_router, model_name="deepseek-chat")
+def get_llm(settings: Settings):
+    litellm_router = Router(model_list=settings.get_model_list())
+    llm = ChatLiteLLMRouter(router=litellm_router, model_name=settings.get_intent_recognition_model().get("model", ""))
     return llm
 
-def get_analyzer():
-    litellm_router = Router(model_list=model_list)
-    llm = ChatLiteLLMRouter(router=litellm_router, model_name="deepseek-chat")
+def get_analyzer(settings: Settings):
+    litellm_router = Router(model_list=settings.get_model_list())
+    llm = ChatLiteLLMRouter(router=litellm_router, model_name=settings.get_analysis_model().get("model", ""))
     return llm
 
 
-async def ainvoke(messages, config = None,  stream=TRUE, analyzer=False):
+async def ainvoke(messages, config: RunnableConfig,  stream=TRUE, analyzer=False):
     # create a new UUID
     # if hidden_stream:
     #     run_id = uuid4()
@@ -65,9 +67,10 @@ async def ainvoke(messages, config = None,  stream=TRUE, analyzer=False):
     #         "type": "hidden_stream",
     #         "message_id": message_id
     #     })
+    settings = Settings(config)
     if analyzer:
-        return await get_analyzer().ainvoke(messages, config, stream=stream)
-    return await get_llm().ainvoke(messages, config, stream=stream)
+        return await get_analyzer(settings).ainvoke(messages, config, stream=stream)
+    return await get_llm(settings).ainvoke(messages, config, stream=stream)
 
 
 

@@ -1,3 +1,5 @@
+"use client";
+
 import { validate } from "uuid";
 import { getApiKey } from "@/lib/api-key";
 import { Thread } from "@langchain/langgraph-sdk";
@@ -12,6 +14,8 @@ import {
   SetStateAction,
 } from "react";
 import { createClient } from "./client";
+import { AostockSettings, DEFAULT_SETTINGS } from "@/components/settings";
+import { useLocalStorage } from "react-use";
 
 interface ThreadContextType {
   getThreads: () => Promise<Thread[]>;
@@ -20,6 +24,8 @@ interface ThreadContextType {
   threadsLoading: boolean;
   setThreadsLoading: Dispatch<SetStateAction<boolean>>;
   archiveThread: (threadId: string) => Promise<void>;
+  settings: AostockSettings;
+  setSettings: Dispatch<SetStateAction<AostockSettings>>;
 }
 
 const ThreadContext = createContext<ThreadContextType | undefined>(undefined);
@@ -35,28 +41,38 @@ function getThreadSearchMetadata(
 }
 
 export function ThreadProvider({ children }: { children: ReactNode }) {
-  const [apiUrl] = useQueryState("apiUrl");
-  const [assistantId] = useQueryState("assistantId");
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
+  const [storedSettings, setStoredSettings] = useLocalStorage<AostockSettings>(
+    "aostock_settings",
+    DEFAULT_SETTINGS,
+  );
+
+  // Ensure settings is always of type AostockSettings, never undefined
+  const settings = storedSettings || DEFAULT_SETTINGS;
+  const setSettings = setStoredSettings as React.Dispatch<
+    React.SetStateAction<AostockSettings>
+  >;
 
   const getThreads = useCallback(async (): Promise<Thread[]> => {
-    if (!apiUrl || !assistantId) return [];
-    const client = createClient(apiUrl, getApiKey() ?? undefined);
+    if (!settings.langgraphServerApiUrl || !settings.assistantId) {
+      return [];
+    }
+    const client = createClient(settings);
 
     const threads = await client.threads.search({
       metadata: {
-        ...getThreadSearchMetadata(assistantId),
+        ...getThreadSearchMetadata(settings.assistantId),
       },
       limit: 100,
     });
 
     return threads;
-  }, [apiUrl, assistantId]);
+  }, [settings]);
 
   const archiveThread = async (threadId: string) => {
-    if (!apiUrl || !assistantId) return;
-    const client = createClient(apiUrl, getApiKey() ?? undefined);
+    if (!settings.langgraphServerApiUrl || !settings.assistantId) return;
+    const client = createClient(settings);
     await client.threads.delete(threadId);
     setThreads(threads.filter((t) => t.thread_id !== threadId));
   };
@@ -68,6 +84,8 @@ export function ThreadProvider({ children }: { children: ReactNode }) {
     threadsLoading,
     setThreadsLoading,
     archiveThread,
+    settings,
+    setSettings,
   };
 
   return (

@@ -20,6 +20,8 @@
     "technicals": "./src/agents/technicals/agent.py:agent",
     "valuation": "./src/agents/valuation/agent.py:agent"
   },
-  "default_stream_mode": ["events"],
+  "http": {
+    "configurable-headers": { "include": ["x-api-key", "authorization", "x-settings"] }
+  },
   "env": ".env"
 }

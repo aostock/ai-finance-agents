@@ -5,10 +5,10 @@ It defines the workflow graph, state, tools, nodes and edges.
 
 from pkgutil import resolve_name
 from common import markdown
+from langchain_core.runnables import RunnableConfig
 from typing_extensions import Literal
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, AIMessage
-from langchain_core.runnables import RunnableConfig
 from langchain.tools import tool
 from langgraph.graph import StateGraph, END
 from langgraph.types import Command
@@ -108,7 +108,7 @@ async def intent_recognition(state: AgentState, config: RunnableConfig):
             state["messages"][-1]
         ]
     # not show in ui and not save in db
-    output = await ainvoke(messages, stream=False)
+    output = await ainvoke(messages, config, stream=False)
     json_result = get_dict_json(output.content)
     type_mapping = {
         1: 'ticker_search',

@@ -2,12 +2,14 @@ import { ReactNode, useEffect, useRef, useState, FormEvent } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/Stream";
+import { useThreads } from "@/providers/Thread";
 import { v4 as uuidv4 } from "uuid";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { ArrowDown } from "lucide-react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { AostockSettings } from "@/components/settings/settings-dialog";
 
 import { useFileUpload } from "@/hooks/use-file-upload";
 import {
@@ -124,6 +126,9 @@ export function Chat() {
     prevMessageLength.current = messages.length;
   }, [messages]);
 
+  // Load settings from Thread provider
+  const { settings } = useThreads();
+
   const sendMessage = (text: string) => {
     setFirstTokenReceived(false);
 
@@ -148,6 +153,7 @@ export function Chat() {
         optimisticValues: (prev) => ({
           ...prev,
           context,
+          settings,
           messages: [
             ...(prev.messages ?? []),
             ...toolMessages,
@@ -173,9 +179,16 @@ export function Chat() {
     // Do this so the loading state is correct
     prevMessageLength.current = prevMessageLength.current - 1;
     setFirstTokenReceived(false);
+    const context =
+      Object.keys(artifactContext).length > 0 ? artifactContext : undefined;
+
     stream.submit(undefined, {
       checkpoint: parentCheckpoint,
       streamMode: ["values"],
+      optimisticValues: (prev) => ({
+        ...prev,
+        context,
+      }),
     });
   };
 

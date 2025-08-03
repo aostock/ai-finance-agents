@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useQueryState } from "nuqs";
 import { constructOpenInStudioURL } from "../utils";
 import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
+import { useThreads } from "@/providers/Thread";
 
 interface ThreadActionsViewProps {
   interrupt: HumanInterrupt;
@@ -81,10 +82,10 @@ export function ThreadActionsView({
   } = useInterruptedActions({
     interrupt,
   });
-  const [apiUrl] = useQueryState("apiUrl");
+  const { settings } = useThreads();
 
   const handleOpenInStudio = () => {
-    if (!apiUrl) {
+    if (!settings.langgraphServerApiUrl) {
       toast.error("Error", {
         description: "Please set the LangGraph deployment URL in settings.",
         duration: 5000,
@@ -94,7 +95,10 @@ export function ThreadActionsView({
       return;
     }
 
-    const studioUrl = constructOpenInStudioURL(apiUrl, threadId ?? undefined);
+    const studioUrl = constructOpenInStudioURL(
+      settings.langgraphServerApiUrl,
+      threadId ?? undefined,
+    );
     window.open(studioUrl, "_blank");
   };
 
@@ -111,7 +115,7 @@ export function ThreadActionsView({
           {threadId && <ThreadIdCopyable threadId={threadId} />}
         </div>
         <div className="flex flex-row items-center justify-start gap-2">
-          {apiUrl && (
+          {settings.langgraphServerApiUrl && (
             <Button
               size="sm"
               variant="outline"

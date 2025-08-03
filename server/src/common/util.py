@@ -1,8 +1,9 @@
 import json
 from types import SimpleNamespace
 import re
+import base64
+from langchain_core.runnables import RunnableConfig
 
-from pydantic import InstanceOf
 
 def dict_to_obj(dictionary):
     if isinstance(dictionary, dict):
@@ -72,3 +73,4 @@ def get_latest_message_content(state):
         elif hasattr(lastMessage, 'text'):
             content = lastMessage.text
     return content
+

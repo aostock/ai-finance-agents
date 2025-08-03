@@ -214,7 +214,7 @@ Based on the analysis, this appears to be {'a high-quality business with strong 
         ]
         
         try:
-            response = await ainvoke(messages, analyzer=True)
+            response = await ainvoke(messages, config, analyzer=True)
             # Parse the response to extract the JSON
             content = response.content if hasattr(response, 'content') else str(response)
             # In a real implementation, we would parse the JSON from the response

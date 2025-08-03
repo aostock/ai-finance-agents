@@ -13,6 +13,7 @@ import {
   PanelRightOpen,
   SquarePen,
   Sun,
+  Settings,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -23,6 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 import { AssistantSelect } from "./assistants";
 import { Logo } from "./logo";
+import { SettingsDialog } from "../settings/settings-dialog";
 // import { useArtifactContext, useArtifactOpen } from "../thread/artifact";
 
 export function PageHeader() {
@@ -60,6 +62,7 @@ export function PageHeader() {
         <div className="flex items-center">
           <PageHeaderRight />
         </div>
+        <SettingsDialog />
         {/* <TooltipIconButton
           size="lg"
           className="p-4"

@@ -1,4 +1,4 @@
-from typing import Any, Dict, TypedDict
+from typing import Any, Dict, TypedDict, Optional
 
 class AgentConfiguration(TypedDict):
     """Configurable parameters for the agent.
@@ -7,4 +7,4 @@ class AgentConfiguration(TypedDict):
     See: https://langchain-ai.github.io/langgraph/cloud/how-tos/configuration_cloud/
     """
 
-    settings: Dict[str, Any]
+    settings: Optional[Dict[str, Any]] = None
