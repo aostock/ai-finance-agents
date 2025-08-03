@@ -1,7 +1,7 @@
-import { AostockSettings } from "@/components/settings";
+import { Settings } from "@/components/settings";
 import { Client } from "@langchain/langgraph-sdk";
 
-export function createClient(settings: AostockSettings) {
+export function createClient(settings: Settings) {
   const base64 = btoa(JSON.stringify(settings));
   return new Client({
     apiKey: settings.langsmithApiKey,

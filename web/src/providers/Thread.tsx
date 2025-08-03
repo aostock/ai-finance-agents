@@ -14,7 +14,7 @@ import {
   SetStateAction,
 } from "react";
 import { createClient } from "./client";
-import { AostockSettings, DEFAULT_SETTINGS } from "@/components/settings";
+import { Settings, DEFAULT_SETTINGS } from "@/components/settings";
 import { useLocalStorage } from "react-use";
 
 interface ThreadContextType {
@@ -24,8 +24,8 @@ interface ThreadContextType {
   threadsLoading: boolean;
   setThreadsLoading: Dispatch<SetStateAction<boolean>>;
   archiveThread: (threadId: string) => Promise<void>;
-  settings: AostockSettings;
-  setSettings: Dispatch<SetStateAction<AostockSettings>>;
+  settings: Settings;
+  setSettings: Dispatch<SetStateAction<Settings>>;
 }
 
 const ThreadContext = createContext<ThreadContextType | undefined>(undefined);
@@ -43,15 +43,15 @@ function getThreadSearchMetadata(
 export function ThreadProvider({ children }: { children: ReactNode }) {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
-  const [storedSettings, setStoredSettings] = useLocalStorage<AostockSettings>(
+  const [storedSettings, setStoredSettings] = useLocalStorage<Settings>(
     "aostock_settings",
     DEFAULT_SETTINGS,
   );
 
-  // Ensure settings is always of type AostockSettings, never undefined
+  // Ensure settings is always of type Settings, never undefined
   const settings = storedSettings || DEFAULT_SETTINGS;
   const setSettings = setStoredSettings as React.Dispatch<
-    React.SetStateAction<AostockSettings>
+    React.SetStateAction<Settings>
   >;
 
   const getThreads = useCallback(async (): Promise<Thread[]> => {

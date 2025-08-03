@@ -10,11 +10,11 @@ import {
   CollapsibleContent,
 } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { AostockSettings } from "./types";
+import { Settings } from "./types";
 
 interface ModelConfigProps {
-  model: AostockSettings["intentRecognitionModel"];
-  onUpdate: (model: AostockSettings["intentRecognitionModel"]) => void;
+  model: Settings["intentRecognitionModel"];
+  onUpdate: (model: Settings["intentRecognitionModel"]) => void;
   title: string;
   isRequired?: boolean;
   error?: string;

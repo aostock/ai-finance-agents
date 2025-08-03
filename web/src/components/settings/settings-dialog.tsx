@@ -14,14 +14,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Settings as SettingsIcon, AlertCircle } from "lucide-react";
 import { ModelConfig } from "./model-config";
-import { AostockSettings, DEFAULT_SETTINGS } from "./types";
+import { Settings, DEFAULT_SETTINGS } from "./types";
 
 export function SettingsDialog() {
   const [isOpen, _setIsOpen] = useState(false);
   const { settings, setSettings } = useThreads();
-  const [localSettings, setLocalSettings] = useState<AostockSettings | null>(
-    null,
-  );
+  const [localSettings, setLocalSettings] = useState<Settings | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   // after force close, we will not open the dialog auto
   const [forceClose, setForceClose] = useState(false);

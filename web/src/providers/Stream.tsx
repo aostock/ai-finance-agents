@@ -26,7 +26,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { getApiKey } from "@/lib/api-key";
 import { useThreads } from "./Thread";
 import { toast } from "sonner";
-import { AostockSettings } from "@/components/settings";
+import { Settings } from "@/components/settings";
 
 export type TickerType = {
   symbol: string;
@@ -53,7 +53,7 @@ export type StateType = {
   action?: ActionType;
   suggestions?: string[];
   context?: Record<string, any>;
-  settings?: AostockSettings;
+  settings?: Settings;
 };
 
 const useTypedStream = useStream<
@@ -65,7 +65,7 @@ const useTypedStream = useStream<
       action?: ActionType;
       ticker?: TickerType;
       suggestions?: string[];
-      settings?: AostockSettings;
+      settings?: Settings;
     };
     CustomEventType: UIMessage | RemoveUIMessage;
   }

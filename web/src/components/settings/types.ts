@@ -1,5 +1,5 @@
 // Define the settings structure
-export interface AostockSettings {
+export interface Settings {
   // General settings
   langgraphServerApiUrl: string;
   assistantId: string;
@@ -25,7 +25,7 @@ export interface AostockSettings {
 }
 
 // Default settings
-export const DEFAULT_SETTINGS: AostockSettings = {
+export const DEFAULT_SETTINGS: Settings = {
   langgraphServerApiUrl: "http://localhost:2024",
   assistantId: "agent",
   langsmithApiKey: undefined,

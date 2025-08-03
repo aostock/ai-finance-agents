@@ -9,7 +9,7 @@ import { ArrowDown } from "lucide-react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { AostockSettings } from "@/components/settings/settings-dialog";
+import { Settings } from "@/components/settings";
 
 import { useFileUpload } from "@/hooks/use-file-upload";
 import {
