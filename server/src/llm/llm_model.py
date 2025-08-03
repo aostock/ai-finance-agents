@@ -18,32 +18,6 @@ from langchain_core.language_models.chat_models import _LC_ID_PREFIX
 from langchain_core.runnables import RunnableConfig
 from common.settings import Settings
 
-
-model_list = [
-    {
-        "model_name": "qwen3-235b-a22b",
-        "litellm_params": {
-            "model": "openai/qwen3-235b-a22b",
-            "api_key": "sk-bac503b5a123456aa106e9574c89b0a0",
-            "api_base": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        },
-    },
-    {
-        "model_name": "deepseek-chat",
-        "litellm_params": {
-            "model": "deepseek/deepseek-chat",
-            "api_key": "sk-9f7b6968585b48c18b032797824d9c8e"
-        },
-    },
-    {
-        "model_name": "deepseek-reasoner",
-        "litellm_params": {
-            "model": "deepseek/deepseek-reasoner",
-            "api_key": "sk-9f7b6968585b48c18b032797824d9c8e"
-        },
-    },
-]
-
 def get_llm(settings: Settings):
     litellm_router = Router(model_list=settings.get_model_list())
     llm = ChatLiteLLMRouter(router=litellm_router, model_name=settings.get_intent_recognition_model().get("model", ""))
