@@ -1,20 +1,6 @@
-import keyword
-import os
-from tkinter import TRUE
-from langchain_litellm import ChatLiteLLM
 from langchain.schema import AIMessage
-from langgraph.types import StreamWriter
-from pydantic import model_validator
 from langchain_litellm import ChatLiteLLMRouter
 from litellm import Router
-from langchain.callbacks.base import BaseCallbackManager
-from langchain.callbacks.streamlit import StreamlitCallbackHandler, BaseCallbackHandler
-from uuid import UUID, uuid4
-from langchain_core.messages import BaseMessage
-from typing import Optional, Any, Union
-from langchain.callbacks.base import AsyncCallbackHandler
-from langchain_core.outputs import ChatGenerationChunk, GenerationChunk, LLMResult
-from langchain_core.language_models.chat_models import _LC_ID_PREFIX
 from langchain_core.runnables import RunnableConfig
 from common.settings import Settings
 
@@ -29,7 +15,7 @@ def get_analyzer(settings: Settings):
     return llm
 
 
-async def ainvoke(messages, config: RunnableConfig,  stream=TRUE, analyzer=False):
+async def ainvoke(messages, config: RunnableConfig,  stream=True, analyzer=False):
     # create a new UUID
     # if hidden_stream:
     #     run_id = uuid4()
