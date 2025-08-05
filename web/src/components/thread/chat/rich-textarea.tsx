@@ -2,6 +2,7 @@ import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { assistants, Assistant } from "@/lib/config";
+import { AssistantSelectPopover } from "@/components/core/assistant-select-popover";
 
 interface RichTextareaProps
   extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange"> {
@@ -19,12 +20,11 @@ export function RichTextarea({
   className,
   ...props
 }: RichTextareaProps) {
-  const [suggestions, setSuggestions] = useState<Assistant[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [cursorPosition, setCursorPosition] = useState(0);
+  const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
+  const [query, setQuery] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const suggestionsRef = useRef<HTMLDivElement>(null);
   const isComposingRef = useRef(false);
 
   // Handle input changes and detect @ mentions
@@ -41,26 +41,49 @@ export function RichTextarea({
       inputValue[cursorPos - 1] === "@" &&
       !isComposingRef.current
     ) {
-      setSuggestions(assistants);
+      setQuery("");
       setShowSuggestions(true);
-      setSelectedIndex(0);
+      // Calculate popover position
+      if (textareaRef.current) {
+        const textarea = textareaRef.current;
+        const textBeforeCursor = inputValue.substring(0, cursorPos);
+        const lines = textBeforeCursor.split('\n');
+        // Get the position of the cursor relative to the textarea
+        const tempSpan = document.createElement('span');
+        const textNode = document.createTextNode(inputValue.substring(0, cursorPos));
+        tempSpan.appendChild(textNode);
+        tempSpan.style.position = 'absolute';
+        tempSpan.style.visibility = 'hidden';
+        tempSpan.style.whiteSpace = 'pre-wrap';
+        tempSpan.style.font = window.getComputedStyle(textarea).font;
+        tempSpan.style.width = textarea.style.width || textarea.offsetWidth + 'px';
+        document.body.appendChild(tempSpan);
+        
+        const rect = tempSpan.getBoundingClientRect();
+        
+        setPopoverPosition({
+          x: rect.width - textarea.scrollLeft,
+          y: (lines.length - 1) * parseFloat(getComputedStyle(textarea).lineHeight) - textarea.scrollTop
+        });
+        
+        document.body.removeChild(tempSpan);
+      }
     } else if (showSuggestions && cursorPos > 0 && !isComposingRef.current) {
       // Check if we're still in a mention context
       const textBeforeCursor = inputValue.substring(0, cursorPos);
       const lastAtIndex = textBeforeCursor.lastIndexOf("@");
 
       if (lastAtIndex !== -1) {
-        const query = textBeforeCursor.substring(lastAtIndex + 1);
-        if (query.length > 0 && !query.includes(" ")) {
+        const newQuery = textBeforeCursor.substring(lastAtIndex + 1);
+        setQuery(newQuery);
+        if (newQuery.length > 0 && !newQuery.includes(" ")) {
           const filtered = assistants.filter(
             (assistant) =>
-              assistant.name.toLowerCase().includes(query.toLowerCase()) ||
-              assistant.title.toLowerCase().includes(query.toLowerCase()),
+              assistant.name.toLowerCase().includes(newQuery.toLowerCase()) ||
+              assistant.title.toLowerCase().includes(newQuery.toLowerCase()),
           );
-          setSuggestions(filtered);
           setShowSuggestions(filtered.length > 0);
-        } else if (query.length === 0) {
-          setSuggestions(assistants);
+        } else if (newQuery.length === 0) {
           setShowSuggestions(true);
         } else {
           setShowSuggestions(false);
@@ -81,19 +104,9 @@ export function RichTextarea({
     }
 
     if (showSuggestions) {
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSelectedIndex((prev) => (prev + 1) % suggestions.length);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIndex(
-          (prev) => (prev - 1 + suggestions.length) % suggestions.length,
-        );
-      } else if (e.key === "Enter" || e.key === "Tab") {
-        e.preventDefault();
-        e.stopPropagation();
-        selectAssistant(suggestions[selectedIndex], e);
-      } else if (e.key === "Escape") {
+      // Let the popover handle keyboard navigation
+      // We only handle escape to close the popover
+      if (e.key === "Escape") {
         e.preventDefault();
         setShowSuggestions(false);
       }
@@ -133,11 +146,7 @@ export function RichTextarea({
   };
 
   // Select an assistant and insert it into the textarea
-  const selectAssistant = (assistant: Assistant, e?: React.KeyboardEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+  const selectAssistant = (assistant: Assistant) => {
     if (!textareaRef.current) return;
 
     const cursorPos = cursorPosition;
@@ -170,18 +179,17 @@ export function RichTextarea({
 
   // Close suggestions when clicking outside
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        suggestionsRef.current &&
-        !suggestionsRef.current.contains(e.target as Node)
-      ) {
+    const handleClickOutside = () => {
+      if (showSuggestions) {
+        // The popover component handles click outside detection
+        // We just need to close the suggestions state
         setShowSuggestions(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [showSuggestions]);
 
   return (
     <div className="relative">
@@ -200,50 +208,12 @@ export function RichTextarea({
       />
 
       {showSuggestions && (
-        <div
-          ref={suggestionsRef}
-          className="bg-popover absolute bottom-full z-50 mb-2 max-h-120 w-full max-w-md overflow-y-auto rounded-md border shadow-lg"
-        >
-          <div className="p-1">
-            {suggestions.map((mention, index) => (
-              <div
-                key={mention.name}
-                className={cn(
-                  "flex cursor-pointer items-start gap-2 rounded-sm px-2 py-2 text-sm",
-                  index === selectedIndex
-                    ? "bg-accent text-accent-foreground"
-                    : "hover:bg-accent/50",
-                )}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  selectAssistant(mention);
-                }}
-              >
-                <img
-                  className="mr-2 h-8 w-8 rounded-full"
-                  src={`/images/assistants/${mention.name}.png`}
-                  onError={(e) => {
-                    // Fallback to a default image if the assistant image doesn't exist
-                    const target = e.target as HTMLImageElement;
-                    target.src = "/images/assistants/agent.png";
-                  }}
-                />
-                <div>
-                  <div className="font-medium">
-                    {mention.title}
-                    <span className="text-muted-foreground my-1 ml-2 text-xs">
-                      @{mention.name}
-                    </span>
-                  </div>
-                  <div className="text-muted-foreground my-1 text-xs">
-                    {mention.description}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <AssistantSelectPopover
+          onSelect={selectAssistant}
+          onClose={() => setShowSuggestions(false)}
+          position={popoverPosition}
+          query={query}
+        />
       )}
     </div>
   );
