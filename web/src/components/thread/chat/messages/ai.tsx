@@ -110,10 +110,11 @@ function ReasoningContent({
   message: Message | undefined;
   className?: string;
 }) {
-  const reasoning_content = message?.additional_kwargs?.reasoning_content;
+  const [isOpen, setIsOpen] = useState(true);
+  const reasoning_content = (message as any)?.additional_kwargs?.reasoning_content;
   const content = message?.content;
   if (!reasoning_content) return null;
-  const [isOpen, setIsOpen] = useState(true);
+  
   const isStreaming = content && content.length > 0 ? false : true;
   return (
     <div className={cn("text-muted bg-card rounded-xl border", className)}>
