@@ -28,7 +28,8 @@ from nodes.next_step_suggestions import NextStepSuggestions
 
 from nodes.ticker_search import TickerSearch
 from typing_extensions import Literal
-from common import markdown, dataset
+from common import markdown
+from common.dataset import Dataset
 
 next_step_suggestions_node = NextStepSuggestions({})
 macro_analysis_node = MacroAnalysis({})
@@ -46,8 +47,11 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     context = state.get('context')
     ticker = context.get('current_task').get('ticker')
     
+    # Create dataset client
+    dataset_client = Dataset(config)
+    
     # Get required financial metrics and items for Stanley Druckenmiller analysis
-    metrics = dataset.get_financial_items(ticker.get('symbol'), [
+    metrics = dataset_client.get_financial_items(ticker.get('symbol'), [
         "return_on_equity", "debt_to_equity", "operating_margin", "current_ratio", 
         "return_on_invested_capital", "asset_turnover", "market_cap", "beta",
         "price_to_earnings_ratio", "enterprise_value", "free_cash_flow", "ebit",
@@ -58,9 +62,9 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     ], end_date, period="yearly")
     
     # Get additional data for macro analysis
-    prices = dataset.get_prices(ticker.get('symbol'), 
-                               time.strftime("%Y-%m-%d", time.localtime(time.time() - 365*24*60*60)), 
-                               end_date)
+    prices = dataset_client.get_prices(ticker.get('symbol'), 
+                                      time.strftime("%Y-%m-%d", time.localtime(time.time() - 365*24*60*60)), 
+                                      end_date)
     
     context['metrics'] = metrics
     context['prices'] = prices

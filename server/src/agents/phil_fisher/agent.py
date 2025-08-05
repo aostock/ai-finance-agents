@@ -29,7 +29,8 @@ from nodes.next_step_suggestions import NextStepSuggestions
 
 from nodes.ticker_search import TickerSearch
 from typing_extensions import Literal
-from common import markdown, dataset
+from common import markdown
+from common.dataset import Dataset
 
 next_step_suggestions_node = NextStepSuggestions({})
 growth_quality_analysis_node = GrowthQualityAnalysis({})
@@ -48,8 +49,11 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     context = state.get('context')
     ticker = context.get('current_task').get('ticker')
     
+    # Create dataset client
+    dataset_client = Dataset(config)
+    
     # Get required financial metrics and items for Phil Fisher analysis
-    metrics = dataset.get_financial_items(ticker.get('symbol'), [
+    metrics = dataset_client.get_financial_items(ticker.get('symbol'), [
         "return_on_equity", "debt_to_equity", "operating_margin", "current_ratio", 
         "return_on_invested_capital", "asset_turnover", "market_cap", "beta",
         "price_to_earnings_ratio", "enterprise_value", "free_cash_flow", "ebit",
@@ -59,8 +63,8 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     ], end_date, period="yearly")
     
     # Get additional data for insider activity and sentiment analysis
-    insider_transactions = dataset.get_insider_transactions(ticker.get('symbol'), end_date)
-    news = dataset.get_news(ticker.get('symbol'), end_date)
+    insider_transactions = dataset_client.get_insider_transactions(ticker.get('symbol'), end_date)
+    news = dataset_client.get_news(ticker.get('symbol'), end_date)
     
     context['metrics'] = metrics
     context['insider_transactions'] = insider_transactions

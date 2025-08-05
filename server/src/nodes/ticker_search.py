@@ -4,9 +4,10 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.types import StreamWriter
 
 from common.agent_state import AgentState
-from common.dataset import lookup_ticker
+
 import common.markdown as markdown
 from llm.llm_model import ainvoke
+from common.dataset import Dataset
 
 
 T = TypeVar('T')
@@ -32,7 +33,8 @@ class TickerSearch(Generic[T]):
                 query = ticker.get('short_name', '')
             lookup_result = []
             if query != '':
-                lookup_result = lookup_ticker(query)
+                dataset = Dataset(config)
+                lookup_result = dataset.lookup_ticker(query)
             if len(lookup_result) == 0:
                 json_markdown += f'* {query} not found\n'
             else:

@@ -3,7 +3,7 @@ from langchain.schema import AIMessage
 from langchain_core.callbacks import dispatch_custom_event
 from langchain_core.runnables import RunnableConfig
 from typing import Dict, Any
-from common.dataset import get_financial_metrics
+
 import time
 from common import markdown
 from langgraph.types import StreamWriter

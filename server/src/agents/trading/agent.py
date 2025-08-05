@@ -12,7 +12,8 @@ from langgraph.graph import END, StateGraph
 
 from nodes.next_step_suggestions import NextStepSuggestions
 
-from common import markdown, dataset
+from common import markdown
+from common.dataset import Dataset
 
 # Import technical analysis module
 from agents.trading.technical_analysis import TechnicalAnalysis
@@ -28,12 +29,15 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     
     ticker = context.get('current_task').get('ticker')
     
+    # Create dataset client
+    dataset_client = Dataset(config)
+    
     # Get market data for technical analysis (last 200 days)
     start_date = time.strftime("%Y-%m-%d", time.localtime(time.time() - 200*24*60*60))
-    prices = dataset.get_prices(ticker.get('symbol'), start_date, end_date)
+    prices = dataset_client.get_prices(ticker.get('symbol'), start_date, end_date)
     
     # Get financial metrics
-    metrics = dataset.get_financial_items(ticker.get('symbol'), [
+    metrics = dataset_client.get_financial_items(ticker.get('symbol'), [
         "return_on_equity", "debt_to_equity", "operating_margin", "current_ratio", 
         "return_on_invested_capital", "asset_turnover", "market_cap",
         "capital_expenditure",
@@ -52,10 +56,10 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     ], end_date, period="yearly")
     
     # Get news data
-    news = dataset.get_news(ticker.get('symbol'), end_date)
+    news = dataset_client.get_news(ticker.get('symbol'), end_date)
     
     # Get insider transactions
-    insider_transactions = dataset.get_insider_transactions(ticker.get('symbol'), end_date)
+    insider_transactions = dataset_client.get_insider_transactions(ticker.get('symbol'), end_date)
     
     context['prices'] = prices
     context['metrics'] = metrics
@@ -75,7 +79,7 @@ async def market_analysis(state: AgentState, config: RunnableConfig):
     metrics = context.get('metrics', [])
     
     # Perform technical analysis
-    technical_analyzer = TechnicalAnalysis()
+    technical_analyzer = TechnicalAnalysis(config)
     trend_analysis = technical_analyzer.analyze_trend(prices)
     momentum_analysis = technical_analyzer.analyze_momentum(prices)
     volatility_analysis = technical_analyzer.analyze_volatility(prices)

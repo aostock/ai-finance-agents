@@ -26,7 +26,8 @@ from nodes.next_step_suggestions import NextStepSuggestions
 
 from nodes.ticker_search import TickerSearch
 from typing_extensions import Literal
-from common import markdown, dataset
+from common import markdown
+from common.dataset import Dataset
 
 next_step_suggestions_node = NextStepSuggestions({})
 fundamental_analysis_node = FundamentalAnalysis({})
@@ -44,7 +45,8 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     
     ticker = context.get('current_task').get('ticker')
     
-    metrics = dataset.get_financial_items(ticker.get('symbol'), [
+    dataset_client = Dataset(config)
+    metrics = dataset_client.get_financial_items(ticker.get('symbol'), [
         "return_on_equity","debt_to_equity","operating_margin","current_ratio","return_on_invested_capital","asset_turnover","market_cap",
             "capital_expenditure",
             "depreciation_and_amortization",

@@ -25,7 +25,8 @@ from agents.bill_ackman.valuation_analysis import ValuationAnalysis
 from nodes.next_step_suggestions import NextStepSuggestions
 from nodes.ticker_search import TickerSearch
 from typing_extensions import Literal
-from common import markdown, dataset
+from common import markdown
+from common.dataset import Dataset
 
 next_step_suggestions_node = NextStepSuggestions({})
 business_quality_analysis_node = BusinessQualityAnalysis({})
@@ -40,8 +41,11 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     context = state.get('context')
     ticker = context.get('current_task').get('ticker')
     
+    # Create dataset client
+    dataset_client = Dataset(config)
+    
     # Get required financial metrics and items for Ackman analysis
-    metrics = dataset.get_financial_items(ticker.get('symbol'), [
+    metrics = dataset_client.get_financial_items(ticker.get('symbol'), [
         "revenue", "operating_margin", "debt_to_equity", "free_cash_flow",
         "total_assets", "total_liabilities", "dividends_and_other_cash_distributions",
         "outstanding_shares", "return_on_equity", "market_cap", "price_to_earnings_ratio"
@@ -67,7 +71,12 @@ async def end_analysis(state: AgentState, config: RunnableConfig):
     )
     
     # Update max possible score calculation
-    max_possible_score = 20  # Adjust weighting as desired (5 from each sub-analysis, for instance)
+    max_possible_score = (
+        analysis_data.get('business_quality_analysis').get("max_score") + 
+        analysis_data.get('balance_sheet_analysis').get("max_score") + 
+        analysis_data.get('activism_potential_analysis').get("max_score") +
+        analysis_data.get('valuation_analysis').get("max_score")
+    )
 
     # Generate a simple buy/hold/sell (bullish/neutral/bearish) signal
     signal = "neutral"
@@ -83,8 +92,18 @@ async def end_analysis(state: AgentState, config: RunnableConfig):
         signal = "neutral"
         confidence = 40.0 + (total_score / max_possible_score) * 20
 
+    # Add margin of safety analysis if we have both intrinsic value and market cap
+    margin_of_safety = None
+    intrinsic_value = analysis_data.get('valuation_analysis').get("intrinsic_value")
+    market_cap = None
+    if context.get("metrics") is not None and len(context.get("metrics")) > 0:
+        market_cap = context.get("metrics")[0].get("market_cap")
+    if intrinsic_value and market_cap:
+        margin_of_safety = (intrinsic_value - market_cap) / market_cap
+
     analysis_data['total_score'] = total_score
     analysis_data['max_possible_score'] = max_possible_score
+    analysis_data['margin_of_safety'] = margin_of_safety
     analysis_data['signal'] = signal
 
     messages = [

@@ -2,14 +2,15 @@
 
 from typing import Dict, Any
 import math
+from langchain_core.runnables import RunnableConfig
 
 
 class TechnicalAnalysis:
     """Class for performing technical analysis on financial data."""
     
-    def __init__(self):
+    def __init__(self, config: RunnableConfig):
         """Initialize TechnicalAnalysis."""
-        pass
+        self.config = config
     
     def calculate_sma(self, prices: list, period: int) -> float:
         """Calculate Simple Moving Average."""

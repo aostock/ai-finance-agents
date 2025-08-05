@@ -23,7 +23,8 @@ from nodes.next_step_suggestions import NextStepSuggestions
 
 from nodes.ticker_search import TickerSearch
 from typing_extensions import Literal
-from common import markdown, dataset
+from common import markdown
+from common.dataset import Dataset
 
 next_step_suggestions_node = NextStepSuggestions({})
 risk_analysis_node = RiskAnalysis({})
@@ -37,7 +38,8 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     ticker = context.get('current_task').get('ticker')
     
     # Get price data for risk analysis
-    prices = dataset.get_prices(ticker.get('symbol'), end_date, end_date)
+    dataset_client = Dataset(config)
+    prices = dataset_client.get_prices(ticker.get('symbol'), end_date, end_date)
     
     # Get portfolio data from context
     portfolio = context.get('portfolio', {

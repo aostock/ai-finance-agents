@@ -3,9 +3,9 @@ from langchain.schema import AIMessage
 from langchain_core.callbacks import dispatch_custom_event
 from langchain_core.runnables import RunnableConfig
 from typing import Dict, Any
-from common.dataset import get_financial_items, get_prices
 import time
 from common import markdown
+from common.dataset import Dataset
 from langgraph.types import StreamWriter
 
 
@@ -14,7 +14,7 @@ class RiskAnalysis():
         self.options = options
 
     
-    def analyze(self, prices: list, portfolio: dict, current_ticker: str) -> dict[str, any]:
+    def analyze(self, prices: list, portfolio: dict, current_ticker: str, config: RunnableConfig) -> dict[str, any]:
         """
         Controls position sizing based on real-world risk factors for the current ticker.
         """
@@ -32,11 +32,13 @@ class RiskAnalysis():
 
         # Calculate total portfolio value based on current market prices (Net Liquidation Value)
         total_portfolio_value = portfolio.get("cash", 0.0)
-        
+        dataset_client = Dataset(config)
         # Add market value of existing positions
         for ticker, position in portfolio.get("positions", {}).items():
             # Get price for this ticker
-            ticker_prices = get_prices(ticker, time.strftime("%Y-%m-%d"), time.strftime("%Y-%m-%d"))
+
+
+            ticker_prices = dataset_client.get_prices(ticker, time.strftime("%Y-%m-%d"), time.strftime("%Y-%m-%d"))
             ticker_price = ticker_prices[0].get('close') if ticker_prices else 0
             
             if ticker_price:
@@ -117,7 +119,7 @@ class RiskAnalysis():
         portfolio = context.get('portfolio', {})
         ticker = context.get('current_task').get('ticker').get('symbol')
         
-        analysis = self.analyze(prices, portfolio, ticker)
+        analysis = self.analyze(prices, portfolio, ticker, config)
         analysis['type'] = 'risk_analysis'
         analysis['title'] = f'Risk analysis'
 

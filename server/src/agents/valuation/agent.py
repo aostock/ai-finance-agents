@@ -26,7 +26,8 @@ from nodes.next_step_suggestions import NextStepSuggestions
 
 from nodes.ticker_search import TickerSearch
 from typing_extensions import Literal
-from common import markdown, dataset
+from common import markdown
+from common.dataset import Dataset
 
 next_step_suggestions_node = NextStepSuggestions({})
 dcf_analysis_node = DCFAnalysis({})
@@ -43,7 +44,8 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     ticker = context.get('current_task').get('ticker')
     
     # Get financial metrics for valuation analysis
-    metrics = dataset.get_financial_items(ticker.get('symbol'), [
+    dataset_client = Dataset(config)
+    metrics = dataset_client.get_financial_items(ticker.get('symbol'), [
         "free_cash_flow", "net_income", "depreciation_and_amortization", 
         "capital_expenditure", "working_capital", "enterprise_value",
         "enterprise_value_to_ebitda_ratio", "market_cap", "book_value",
@@ -53,7 +55,7 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     context['metrics'] = metrics
     
     # Get additional historical data for median calculations
-    historical_metrics = dataset.get_financial_items(ticker.get('symbol'), [
+    historical_metrics = dataset_client.get_financial_items(ticker.get('symbol'), [
         "enterprise_value_to_ebitda_ratio", "price_to_book_ratio", "return_on_equity"
     ], end_date, period="yearly")
     

@@ -36,3 +36,9 @@ class Settings():
                 "litellm_params": analysis_model,
             }
         ]
+
+    def get_remote_financial_data_api_url(self) -> str:
+        return self.dict.get("remoteFinancialDataApiUrl", "")
+    
+    def get_remote_financial_data_api_key(self) -> str:
+        return self.dict.get("remoteFinancialDataApiKey", "")

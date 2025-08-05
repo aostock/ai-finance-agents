@@ -24,7 +24,8 @@ from agents.ben_graham.valuation_analysis import ValuationAnalysis
 from nodes.next_step_suggestions import NextStepSuggestions
 from nodes.ticker_search import TickerSearch
 from typing_extensions import Literal
-from common import markdown, dataset
+from common import markdown
+from common.dataset import Dataset
 
 next_step_suggestions_node = NextStepSuggestions({})
 earnings_stability_analysis_node = EarningsStabilityAnalysis({})
@@ -38,8 +39,11 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     context = state.get('context')
     ticker = context.get('current_task').get('ticker')
     
+    # Create dataset client
+    dataset_client = Dataset(config)
+    
     # Get required financial metrics and items for Graham analysis
-    metrics = dataset.get_financial_items(ticker.get('symbol'), [
+    metrics = dataset_client.get_financial_items(ticker.get('symbol'), [
         "earnings_per_share", "revenue", "net_income", "book_value_per_share", 
         "total_assets", "total_liabilities", "current_assets", "current_liabilities",
         "dividends_and_other_cash_distributions", "outstanding_shares", "market_cap",

@@ -26,11 +26,11 @@ export interface Settings {
 
 // Default settings
 export const DEFAULT_SETTINGS: Settings = {
-  serverApiUrl: "http://localhost:2024",
+  serverApiUrl: "https://agent.aostock.com",
   assistantId: "agent",
-  serverApiKey: undefined,
-  remoteFinancialDataApiUrl: "http://127.0.0.1:8000/",
-  remoteFinancialDataApiKey: "test",
+  serverApiKey: "",
+  remoteFinancialDataApiUrl: "https://data.aostock.com",
+  remoteFinancialDataApiKey: "",
   intentRecognitionModel: {
     model: "gpt-4o-mini",
     api_key: "",

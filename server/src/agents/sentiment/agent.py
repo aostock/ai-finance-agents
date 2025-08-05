@@ -27,7 +27,8 @@ from nodes.next_step_suggestions import NextStepSuggestions
 
 from nodes.ticker_search import TickerSearch
 from typing_extensions import Literal
-from common import markdown, dataset
+from common import markdown
+from common.dataset import Dataset
 
 next_step_suggestions_node = NextStepSuggestions({})
 news_sentiment_analysis_node = NewsSentimentAnalysis({})
@@ -44,16 +45,19 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     context = state.get('context')
     ticker = context.get('current_task').get('ticker')
     
+    # Create dataset client
+    dataset_client = Dataset(config)
+    
     # Get news data for sentiment analysis
-    news = dataset.get_news(ticker.get('symbol'), end_date)
+    news = dataset_client.get_news(ticker.get('symbol'), end_date)
     
     # Get insider transactions data
-    insider_transactions = dataset.get_insider_transactions(ticker.get('symbol'), end_date)
+    insider_transactions = dataset_client.get_insider_transactions(ticker.get('symbol'), end_date)
     
     # Get price data for technical analysis
     # Get 30 days of price data for technical indicators
     start_date = time.strftime("%Y-%m-%d", time.localtime(time.time() - 30*24*60*60))
-    prices = dataset.get_prices(ticker.get('symbol'), start_date, end_date)
+    prices = dataset_client.get_prices(ticker.get('symbol'), start_date, end_date)
     
     context['news'] = news
     context['insider_transactions'] = insider_transactions

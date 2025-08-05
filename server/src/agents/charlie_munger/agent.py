@@ -27,7 +27,8 @@ from nodes.next_step_suggestions import NextStepSuggestions
 
 from nodes.ticker_search import TickerSearch
 from typing_extensions import Literal
-from common import markdown, dataset
+from common import markdown
+from common.dataset import Dataset
 
 next_step_suggestions_node = NextStepSuggestions({})
 moat_strength_analysis_node = MoatStrengthAnalysis({})
@@ -44,7 +45,10 @@ async def start_analysis(state: AgentState, config: RunnableConfig):
     
     ticker = context.get('current_task').get('ticker')
     
-    metrics = dataset.get_financial_items(ticker.get('symbol'), [
+    # Create dataset client
+    dataset_client = Dataset(config)
+    
+    metrics = dataset_client.get_financial_items(ticker.get('symbol'), [
         "revenue",
         "net_income",
         "operating_income",
