@@ -1,23 +1,29 @@
 import * as React from "react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { assistants, Assistant } from "@/lib/config";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
-interface AssistantSelectPopoverProps {
+interface AssistantPopoverProps {
   onSelect: (assistant: Assistant) => void;
   onClose: () => void;
-  position: { x: number; y: number };
-  query?: string;
+  query: string;
+  open: boolean;
+  children: React.ReactNode;
 }
 
-export function AssistantSelectPopover({
+export function AssistantPopover({
   onSelect,
   onClose,
-  position,
-  query = "",
-}: AssistantSelectPopoverProps) {
+  query,
+  open,
+  children,
+}: AssistantPopoverProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const popoverRef = useRef<HTMLDivElement>(null);
   const selectedRef = useRef<HTMLDivElement>(null);
 
   // Filter assistants based on query
@@ -26,9 +32,18 @@ export function AssistantSelectPopover({
     return assistants.filter(
       (assistant) =>
         assistant.name.toLowerCase().includes(query.toLowerCase()) ||
-        assistant.title.toLowerCase().includes(query.toLowerCase())
+        assistant.title.toLowerCase().includes(query.toLowerCase()),
     );
   }, [query]);
+
+  const handleSelect = useCallback(
+    (assistant: Assistant) => {
+      if (filteredAssistants.length === 0 || !assistant) return;
+      onSelect(assistant);
+      onClose();
+    },
+    [onSelect, onClose, filteredAssistants],
+  );
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -41,7 +56,8 @@ export function AssistantSelectPopover({
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setSelectedIndex(
-          (prev) => (prev - 1 + filteredAssistants.length) % filteredAssistants.length
+          (prev) =>
+            (prev - 1 + filteredAssistants.length) % filteredAssistants.length,
         );
       } else if (e.key === "Enter" || e.key === "Tab") {
         e.preventDefault();
@@ -55,56 +71,41 @@ export function AssistantSelectPopover({
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [filteredAssistants, selectedIndex, onSelect, onClose]);
+  }, [filteredAssistants, selectedIndex, handleSelect, onClose]);
 
   // Scroll selected item into view
   useEffect(() => {
     selectedRef.current?.scrollIntoView({ block: "nearest" });
   }, [selectedIndex]);
 
-  // Close when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
-
-  const handleSelect = (assistant: Assistant) => {
-    onSelect(assistant);
-    onClose();
-  };
-
   return (
-    <div
-      ref={popoverRef}
-      className="bg-popover absolute z-50 mt-1 max-h-120 w-full max-w-md overflow-y-auto rounded-md border shadow-lg"
-      style={{
-        left: position.x,
-        top: position.y,
-      }}
-    >
-      <div className="p-1">
-        {filteredAssistants.map((assistant, index) => (
-          <AssistantSuggestionItem
-            key={assistant.name}
-            assistant={assistant}
-            isSelected={index === selectedIndex}
-            ref={index === selectedIndex ? selectedRef : null}
-            onClick={() => handleSelect(assistant)}
-          />
-        ))}
-        {filteredAssistants.length === 0 && (
-          <div className="py-2 text-center text-muted-foreground">
-            No assistants found
-          </div>
-        )}
-      </div>
-    </div>
+    <Popover open={open}>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+
+      <PopoverContent
+        align="start"
+        className="max-h-120 w-full max-w-md overflow-y-auto rounded-md border p-0 shadow-lg"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        onInteractOutside={onClose}
+      >
+        <div className="p-1">
+          {filteredAssistants.map((assistant, index) => (
+            <AssistantSuggestionItem
+              key={assistant.name}
+              assistant={assistant}
+              isSelected={index === selectedIndex}
+              ref={index === selectedIndex ? selectedRef : null}
+              onClick={() => handleSelect(assistant)}
+            />
+          ))}
+          {filteredAssistants.length === 0 && (
+            <div className="text-muted-foreground py-2 text-center">
+              No assistants found
+            </div>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -123,9 +124,7 @@ const AssistantSuggestionItem = React.forwardRef<
       ref={ref}
       className={cn(
         "flex cursor-pointer items-start gap-2 rounded-sm px-2 py-2 text-sm",
-        isSelected
-          ? "bg-accent text-accent-foreground"
-          : "hover:bg-accent/50"
+        isSelected ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
       )}
       onClick={(e) => {
         e.preventDefault();

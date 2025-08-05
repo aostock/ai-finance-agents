@@ -110,7 +110,7 @@ export const TickerSelect = (code: string) => {
             }
             disabled={isLoading}
           >
-            Start Analysis
+            Start Analysis By
           </Button>
         </CardFooter>
       </Card>

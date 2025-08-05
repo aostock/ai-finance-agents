@@ -2,7 +2,7 @@ import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { assistants, Assistant } from "@/lib/config";
-import { AssistantSelectPopover } from "@/components/core/assistant-select-popover";
+import { AssistantPopover } from "@/components/core/assistant-popover";
 
 interface RichTextareaProps
   extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, "onChange"> {
@@ -22,7 +22,6 @@ export function RichTextarea({
 }: RichTextareaProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [cursorPosition, setCursorPosition] = useState(0);
-  const [popoverPosition, setPopoverPosition] = useState({ x: 0, y: 0 });
   const [query, setQuery] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isComposingRef = useRef(false);
@@ -43,31 +42,6 @@ export function RichTextarea({
     ) {
       setQuery("");
       setShowSuggestions(true);
-      // Calculate popover position
-      if (textareaRef.current) {
-        const textarea = textareaRef.current;
-        const textBeforeCursor = inputValue.substring(0, cursorPos);
-        const lines = textBeforeCursor.split('\n');
-        // Get the position of the cursor relative to the textarea
-        const tempSpan = document.createElement('span');
-        const textNode = document.createTextNode(inputValue.substring(0, cursorPos));
-        tempSpan.appendChild(textNode);
-        tempSpan.style.position = 'absolute';
-        tempSpan.style.visibility = 'hidden';
-        tempSpan.style.whiteSpace = 'pre-wrap';
-        tempSpan.style.font = window.getComputedStyle(textarea).font;
-        tempSpan.style.width = textarea.style.width || textarea.offsetWidth + 'px';
-        document.body.appendChild(tempSpan);
-        
-        const rect = tempSpan.getBoundingClientRect();
-        
-        setPopoverPosition({
-          x: rect.width - textarea.scrollLeft,
-          y: (lines.length - 1) * parseFloat(getComputedStyle(textarea).lineHeight) - textarea.scrollTop
-        });
-        
-        document.body.removeChild(tempSpan);
-      }
     } else if (showSuggestions && cursorPos > 0 && !isComposingRef.current) {
       // Check if we're still in a mention context
       const textBeforeCursor = inputValue.substring(0, cursorPos);
@@ -164,15 +138,18 @@ export function RichTextarea({
       textAfterCursor;
 
     onChange(newText);
-    setShowSuggestions(false);
 
-    // Set cursor position after the inserted mention
+    // Set cursor position after the inserted mention BEFORE closing the popover
+    if (textareaRef.current) {
+      const newCursorPos = lastAtIndex + assistant.name.length + 2;
+      textareaRef.current.focus();
+      textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
+    }
+
+    // Close the popover after a short delay to ensure focus is set
     setTimeout(() => {
-      if (textareaRef.current) {
-        const newCursorPos = lastAtIndex + assistant.name.length + 2;
-        textareaRef.current.setSelectionRange(newCursorPos, newCursorPos);
-      }
-    }, 0);
+      setShowSuggestions(false);
+    }, 10);
 
     onMentionSelect?.(assistant);
   };
@@ -193,28 +170,34 @@ export function RichTextarea({
 
   return (
     <div className="relative">
-      <textarea
-        ref={textareaRef}
-        value={value}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        onCompositionStart={handleCompositionStart}
-        onCompositionEnd={handleCompositionEnd}
-        className={cn(
-          "border-input placeholder:text-muted-foreground aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-          className,
-        )}
-        {...props}
-      />
-
-      {showSuggestions && (
-        <AssistantSelectPopover
-          onSelect={selectAssistant}
-          onClose={() => setShowSuggestions(false)}
-          position={popoverPosition}
-          query={query}
+      <AssistantPopover
+        onSelect={selectAssistant}
+        onClose={() => setShowSuggestions(false)}
+        open={showSuggestions}
+        query={query}
+      >
+        <textarea
+          ref={textareaRef}
+          value={value}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
+          onFocusCapture={() => {
+            // Ensure textarea maintains focus when interacting with popover
+            if (showSuggestions && textareaRef.current) {
+              setTimeout(() => {
+                textareaRef.current?.focus();
+              }, 0);
+            }
+          }}
+          className={cn(
+            "placeholder:text-muted-foreground flex field-sizing-content min-h-16 w-full rounded-none border-0 bg-transparent px-3 py-2 text-base shadow-none outline-none focus:ring-0 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+            className,
+          )}
+          {...props}
         />
-      )}
+      </AssistantPopover>
     </div>
   );
 }

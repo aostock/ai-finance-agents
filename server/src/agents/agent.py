@@ -18,7 +18,7 @@ from common.agent_state import AgentState, StateContext
 from langgraph.types import StreamWriter
 import asyncio
 import uuid
-from common.util import get_dict_json, get_at_items, get_latest_message_content
+from common.util import get_dict_json, get_at_items, get_latest_message_content, get_array_json
 from agents.warren_buffett.agent import agent as warren_buffett_agent
 from agents.aswath_damodaran.agent import agent as aswath_damodaran_agent
 from agents.ben_graham.agent import agent as ben_graham_agent
@@ -67,7 +67,7 @@ analysis_agents = {
     'valuation': valuation_agent,
 }
 
-def planner_node(state: AgentState, config: RunnableConfig):
+async def planner_node(state: AgentState, config: RunnableConfig) -> Command[Literal["ticker_switch", "ticker_analysis", "ticker_search", "next_step_suggestions"]]:
     """
     Initialize the planner node by setting up the context in the agent state.
     
@@ -81,88 +81,31 @@ def planner_node(state: AgentState, config: RunnableConfig):
     context = state.get('context')
     if context is None:
         context = {}
-    return {'context':context}
-
-async def intent_recognition(state: AgentState, config: RunnableConfig):
-    """
-    Recognize the user's intent from their message and classify it into one of five types:
-    1. Search/query stock information
-    2. Analyze/ask about holding/buying/selling
-    3. Query with date range
-    4. Query with specific metrics
-    5. Other/unrecognized queries
     
-    Args:
-        state (AgentState): The current state of the agent containing context and messages
-        config (RunnableConfig): Configuration for the runnable
-        
-    Returns:
-        dict: Action dictionary containing the recognized intent type and parameters
-    """
-    prompt = """You are a precise intent recognition system for stock-related queries. Strictly classify inputs into one of five intents based **only** on explicit linguistic triggers. Output **ONLY** the required JSON—no explanations, prefixes, or deviations. Critical updates for Intent 1/2 accuracy:  
-
-### 🔑 Key Requirements  
-- **Intent 1 (Search/query stock info)**: **ONLY** triggered by **purely informational requests** (e.g., "show", "search", "info", "details", "price of", "what is") **without transactional context**. Stock reference is primary.  
-- **Intent 2 (Analyze a stock or ask for holding/buying/selling)**: **ONLY** triggered by **explicit transactional language** (e.g., "analyze [stock]", "should I buy/sell/hold", "is it good to", "recommendation for", "advice on purchasing", "analyze [stock] for entry/exit"). Must contain **action-oriented verbs or decision-seeking phrases**.  
-- **Intent 3**: Requires **explicit date range** (e.g., "from [date] to [date]", "in 2023") + ≥1 stock.  
-- **Intent 4**: Requires **explicit metric specification** (e.g., "EPS", "P/E ratio", "Q3 revenue") + ≥1 stock.  
-- **Intent 5**: No stock reference **OR** no match to 1-4, give **two suggestions** to the user to match the 4 intents.  
-- **All intents 1-4**:  
-  - Include market suffix in `symbol` (e.g., `AAPL`, `700.HK`).  
-  - Resolve stock names to English names/codes (e.g., "腾讯" → `Tencent`, `Tencent Holdings Ltd.`, `0700.HK`).  
-  - Validate dates as ISO (`YYYY-MM-DD`).  
-  - For Intent 4, `metrics_content` must **concisely summarize the metric** (e.g., `"Q3 2023 P/E ratio"`).  
-
-### 📌 Output Rules (Strict Compliance)  
-- **Intent 1 Example**: `{"type": 1, "parameters": {"tickers": [{"short_name": "Apple", "en_name": "Apple Inc.", "symbol": "AAPL"}]}}`  
-  *(Trigger: "Show Apple stock details")*  
-- **Intent 2 Example**: `{"type": 2, "parameters": {"tickers": [{"short_name": "Tesla", "en_name": "Tesla Inc.", "symbol": "TSLA"}]}}`  
-  *(Trigger: "Should I buy Tesla now?")*  
-- **Intent 3 Example**: `{"type": 3, "parameters": {"tickers": [{"short_name": "Google", "en_name": "Alphabet Inc.", "symbol": "GOOG"}], "start_date": "2023-01-01", "end_date": "2023-12-31"}}`  
-- **Intent 4 Example**: `{"type": 4, "parameters": {"metrics_content": "Q3 2023 EPS", "tickers": [{"short_name": "Microsoft", "en_name": "Microsoft Corporation", "symbol": "MSFT"}]}}`  
-- **Intent 5 Example**: `{"type": 5, "parameters": { "suggestions": ["Search Apple stock", "Should I buy Apple?"] }}`
-
-### ⚠️ Critical Intent 1 vs 2 Differentiation  
-| **Intent 1 (Info Only)**          | **Intent 2 (Transactional)**         |  
-|-----------------------------------|--------------------------------------|  
-| "Search Apple stock"              | "Should I buy Apple?"                |  
-| "What is TSLA price?"             | "Is it time to sell Tesla?"          |  
-| "Show Microsoft details"          | "Recommendation for holding MSFT"    |  
-
-**Output ONLY the JSON—validate structure before responding.**
-"""
-    messages = [
-            SystemMessage(content=prompt),
-            state["messages"][-1]
-        ]
-    # not show in ui and not save in db
-    output = await ainvoke(messages, config, stream=False)
-    json_result = get_dict_json(output.content)
-    type_mapping = {
-        1: 'ticker_search',
-        2: 'ticker_analysis',
-        3: 'ticker_search',
-        4: 'ticker_analysis'
-    }
-    json_result['type'] = type_mapping.get(json_result['type'], 'next_step_suggestions')
-    if json_result['type'] == 'next_step_suggestions':
-        return {"action": json_result, "messages": AIMessage(content="")}
-    return {"action": json_result}
-
-def intent_conditional(state: AgentState, config: RunnableConfig):
-    """
-    Determine the next node based on the recognized intent type.
-    
-    Args:
-        state (AgentState): The current state of the agent containing the action
-        config (RunnableConfig): Configuration for the runnable
-        
-    Returns:
-        str: The name of the next node to execute based on the intent type
-    """
     if state.get('action') is not None:
-        return state.get('action')['type']
-    return 'next_step_suggestions'
+        if state.get('action')['type'] == "ticker_switch":
+        # The switch has been completed on the front-end, no back-end processing is required
+            return Command(goto='ticker_switch', update={'context': context})
+        elif state.get('action')['type'] == "ticker_analysis":
+            return Command(goto='ticker_analysis', update={'context': context})
+        else:
+            return Command(goto='next_step_suggestions', update={'context': context})
+    else:
+        tickers = await get_tickers_from_content(state, config)
+        if tickers is None or len(tickers) == 0:
+            return Command(goto='next_step_suggestions', update={'context': context})
+        content = get_latest_message_content(state)
+        items = get_at_items(content)
+        agents = []
+        for item in items:
+            if item in analysis_agents:
+                agents.append(item)
+        
+        action = {'type': 'ticker_search', 'parameters': {'agents': agents, 'tickers': tickers}}
+        if len(agents) > 0:
+            action['type'] = 'ticker_analysis'
+        return Command(goto=action['type'], update={'context': context, 'action': action})
+
 
 def ticker_analysis(state: AgentState, config: RunnableConfig):
     """
@@ -180,12 +123,7 @@ def ticker_analysis(state: AgentState, config: RunnableConfig):
     context = state.get('context')
     if context.get('tasks') is None:
         # in last messages content, there some @agent_name content, get the @ list
-        content = get_latest_message_content(state)
-        agents = get_at_items(content)
-        if agents is None or len(agents) == 0:
-            # default use the first agent
-            agents = [list(analysis_agents.keys())[0]]
-        
+        agents = state.get('action').get('parameters').get('agents')
         tickers = state.get('action').get('parameters').get('tickers')
         tasks = []
         for agent_name in agents:
@@ -235,25 +173,34 @@ def ticker_switch(state: AgentState, config: RunnableConfig) -> Command[Literal[
     return Command(goto='clear_cache', update={'action': None, 'messages': [message]})
 
 
-def planer_conditional(state: AgentState, config: RunnableConfig):
+async def get_tickers_from_content(state: AgentState, config: RunnableConfig):
     """
-    Determine the next node in the planning phase based on the action type.
+    Extract tickers from the content.
     
     Args:
-        state (AgentState): The current state of the agent containing the action
-        config (RunnableConfig): Configuration for the runnable
+        content (str): The content to extract tickers from
         
     Returns:
-        str: The name of the next node to execute based on the action type
+        list: A list of tickers
     """
-    if state.get('action') is not None:
-        if state.get('action')['type'] == "ticker_switch":
-        # The switch has been completed on the front-end, no back-end processing is required
-            return "ticker_switch"
-        elif state.get('action')['type'] == "ticker_analysis":
-            return "ticker_analysis"
-        return 'clear_cache'
-    return 'intent_recognition'
+    prompt = """Please extract the most recent one or more stock information entries currently being discussed from the above conversation history. The extracted information must include:  
+
+1. **short_name**: The name of the stock or company  
+2. **symbol**: The stock symbol, derived from user input or analyzed from short_name. Include the stock market suffix when necessary (e.g., `AAPL`, `601398.SS`)  
+3. **en_name**: The English abbreviation of the stock, analyzed from short_name and symbol  
+
+**Output ONLY the JSON—validate structure before responding.**  
+Example output:  
+`[{"short_name": "Apple", "en_name": "Apple Inc.", "symbol": "AAPL"}]`
+"""
+    messages = state["messages"] + [SystemMessage(content=prompt)]
+        
+    # not show in ui and not save in db
+    output = await ainvoke(messages, config, stream=False)
+    tickers = get_array_json(output.content)
+    return tickers
+
+
 
 def clear_cache(state: AgentState, config: RunnableConfig):
     """
@@ -273,16 +220,11 @@ def clear_cache(state: AgentState, config: RunnableConfig):
 workflow = StateGraph(AgentState)
 workflow.add_node("planner", planner_node)
 workflow.add_node("ticker_switch", ticker_switch)
-workflow.add_node("intent_recognition", intent_recognition)
 workflow.add_node("ticker_search", ticker_search)
 workflow.add_node("next_step_suggestions", next_step_suggestions)
 workflow.add_node("ticker_analysis", ticker_analysis)
 
 workflow.add_node("clear_cache", clear_cache)
-
-# Define conditional edges that determine the flow based on the current state
-workflow.add_conditional_edges("planner", planer_conditional, ["ticker_switch", "ticker_analysis", "intent_recognition", 'clear_cache'])
-workflow.add_conditional_edges("intent_recognition", intent_conditional, ["ticker_search", "ticker_analysis", "next_step_suggestions", 'clear_cache'])
 
 # Set entry point and define edges between nodes
 workflow.set_entry_point("planner")

@@ -3,7 +3,7 @@ from langchain_core.runnables import RunnableConfig
 from typing import Dict, Any
 from llm.llm_model import ainvoke
 from common.util import get_array_json
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, SystemMessage
 from common import markdown
 
 
@@ -28,7 +28,7 @@ class NextStepSuggestions():
     Please output in the following JSON format:
     [ "Question 1","Question 2"]
     """
-            messages.append({"role": "system", "content": prompt})
+            messages = state["messages"] + [SystemMessage(content=prompt)]
 
             # not show in ui and not save in db
             output = await ainvoke(messages, config, stream=False)
