@@ -3,13 +3,30 @@ from langchain_litellm import ChatLiteLLMRouter
 from litellm import Router
 from langchain_core.runnables import RunnableConfig
 from common.settings import Settings
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
 
-def get_llm(settings: Settings):
+from langchain_mcp_adapters.tools import load_mcp_tools, BaseTool
+from langgraph.prebuilt import create_react_agent
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+
+
+async def get_tools(server_params) -> list[BaseTool]:
+    async with streamablehttp_client(**server_params) as (read, write, _):
+        async with ClientSession(read, write) as session:
+            # Initialize the connection
+            await session.initialize()
+            # Load the remote graph as if it was a tool
+            tools = await load_mcp_tools(session)
+            return tools
+
+def get_llm(settings: Settings)->ChatLiteLLMRouter:
     litellm_router = Router(model_list=settings.get_model_list())
     llm = ChatLiteLLMRouter(router=litellm_router, model_name=settings.get_intent_recognition_model().get("model", ""))
     return llm
 
-def get_analyzer(settings: Settings):
+def get_analyzer(settings: Settings)->ChatLiteLLMRouter:
     litellm_router = Router(model_list=settings.get_model_list())
     llm = ChatLiteLLMRouter(router=litellm_router, model_name=settings.get_analysis_model().get("model", ""))
     return llm
@@ -32,6 +49,16 @@ async def ainvoke(messages, config: RunnableConfig,  stream=True, analyzer=False
         return await get_analyzer(settings).ainvoke(messages, config, stream=stream)
     return await get_llm(settings).ainvoke(messages, config, stream=stream)
 
+
+async def ainvoke_with_tools(messages, config: RunnableConfig, tools: list[BaseTool], stream=True, analyzer=False):
+    settings = Settings(config)
+    llm = None
+    if analyzer:
+        llm = get_analyzer(settings)
+    else:
+        llm = get_llm(settings)
+    agent = llm.bind_tools(tools, tool_choice="auto")
+    return await agent.ainvoke(messages, config, stream=stream)
 
 
 

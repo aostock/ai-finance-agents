@@ -118,4 +118,10 @@ export const assistants: Assistant[] = [
     description:
       "Focuses on comprehensive valuation analysis using multiple methodologies including DCF, owner earnings, and relative valuation",
   },
+  {
+    name: "information_query",
+    title: "Information Query",
+    description:
+      "Provides detailed company information and key financial metrics analysis",
+  },
 ];

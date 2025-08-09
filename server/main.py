@@ -4,6 +4,7 @@ import uvicorn
 from copilotkit.integrations.fastapi import add_fastapi_endpoint 
 from copilotkit import CopilotKitRemoteEndpoint, LangGraphAgent 
 from agents.warren_buffett.agent import agent as warren_buffett_agent
+from agents.information_query.agent import agent as information_query_agent
 from agents.agent import agent
  
 from dotenv import load_dotenv
@@ -22,6 +23,11 @@ sdk = CopilotKitRemoteEndpoint(
             name="warren_buffett", # the name of your agent defined in langgraph.json
             description="Describe your agent here, will be used for multi-agent orchestration",
             graph=warren_buffett_agent, # the graph object from your langgraph import
+        ),
+        LangGraphAgent(
+            name="information_query", # the name of your agent defined in langgraph.json
+            description="Provides detailed company information and key financial metrics analysis",
+            graph=information_query_agent, # the graph object from your langgraph import
         )
     ],
 )

@@ -1,10 +1,87 @@
 import { AIMessage, ToolMessage } from "@langchain/langgraph-sdk";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  PenToolIcon,
+  Settings2Icon,
+} from "lucide-react";
 
 function isComplexValue(value: any): boolean {
   return Array.isArray(value) || (typeof value === "object" && value !== null);
+}
+
+function ToolItem({ tc }: any) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const args = tc.args as Record<string, any>;
+  const hasArgs = Object.keys(args).length > 0;
+  const result = (tc as any).result;
+
+  return (
+    <div className="overflow-hidden rounded-lg border">
+      <div className="flex justify-between border-b px-4 py-2">
+        <h3 className="font-medium">
+          <Settings2Icon className="mr-2 inline-block h-4 w-4" />
+          {tc.name}
+          {/* {tc.id && (
+                  <code className="px-2 py-1 ml-2 text-sm rounded">
+                    {tc.id}
+                  </code>
+                )} */}
+        </h3>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="hover:bg-muted rounded p-1"
+        >
+          {isExpanded ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
+        </button>
+      </div>
+
+      <AnimatePresence initial={false}>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <h6 className="px-4 py-2 text-sm font-medium whitespace-nowrap">
+              Args:
+            </h6>
+            {hasArgs ? (
+              <code className="rounded px-2 py-1 font-mono text-sm break-all">
+                {JSON.stringify(args, null, 2)}
+              </code>
+            ) : (
+              <code className="rounded px-2 py-1 font-mono text-sm break-all">
+                {"{}"}
+              </code>
+            )}
+            <h6 className="px-4 py-2 text-sm font-medium whitespace-nowrap">
+              Result:
+            </h6>
+            {result ? (
+              <code className="rounded px-2 py-1 font-mono text-sm break-all">
+                {result instanceof String
+                  ? result
+                  : JSON.stringify(result, null, 2)}
+              </code>
+            ) : (
+              <code className="rounded px-2 py-1 font-mono text-sm break-all">
+                {"{}"}
+              </code>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 export function ToolCalls({
@@ -15,50 +92,13 @@ export function ToolCalls({
   if (!toolCalls || toolCalls.length === 0) return null;
 
   return (
-    <div className="mx-auto grid max-w-3xl grid-rows-[1fr_auto] gap-2">
+    <div className="w-full">
       {toolCalls.map((tc, idx) => {
-        const args = tc.args as Record<string, any>;
-        const hasArgs = Object.keys(args).length > 0;
         return (
-          <div
+          <ToolItem
             key={idx}
-            className="overflow-hidden rounded-lg border border-gray-200"
-          >
-            <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
-              <h3 className="font-medium text-gray-900">
-                {tc.name}
-                {tc.id && (
-                  <code className="ml-2 rounded bg-gray-100 px-2 py-1 text-sm">
-                    {tc.id}
-                  </code>
-                )}
-              </h3>
-            </div>
-            {hasArgs ? (
-              <table className="min-w-full divide-y divide-gray-200">
-                <tbody className="divide-y divide-gray-200">
-                  {Object.entries(args).map(([key, value], argIdx) => (
-                    <tr key={argIdx}>
-                      <td className="px-4 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
-                        {key}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-500">
-                        {isComplexValue(value) ? (
-                          <code className="rounded bg-gray-50 px-2 py-1 font-mono text-sm break-all">
-                            {JSON.stringify(value, null, 2)}
-                          </code>
-                        ) : (
-                          String(value)
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <code className="block p-3 text-sm">{"{}"}</code>
-            )}
-          </div>
+            tc={tc}
+          />
         );
       })}
     </div>

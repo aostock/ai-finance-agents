@@ -37,6 +37,7 @@ from agents.stanley_druckenmiller.agent import agent as stanley_druckenmiller_ag
 from agents.technicals.agent import agent as technicals_agent
 from agents.trading.agent import agent as trading_agent
 from agents.valuation.agent import agent as valuation_agent
+from agents.information_query.agent import agent as information_query_agent
 from llm.llm_model import ainvoke
 from nodes.ticker_search import TickerSearch
 from nodes.next_step_suggestions import NextStepSuggestions
@@ -47,6 +48,7 @@ ticker_search = TickerSearch[Command[Literal['clear_cache']]]({})
 next_step_suggestions = NextStepSuggestions({})
 
 analysis_agents = {
+    'information_query': information_query_agent,
     'warren_buffett': warren_buffett_agent,
     'aswath_damodaran': aswath_damodaran_agent,
     'ben_graham': ben_graham_agent,
@@ -64,7 +66,7 @@ analysis_agents = {
     'stanley_druckenmiller': stanley_druckenmiller_agent,
     'technicals': technicals_agent,
     'trading': trading_agent,
-    'valuation': valuation_agent,
+    'valuation': valuation_agent
 }
 
 async def planner_node(state: AgentState, config: RunnableConfig) -> Command[Literal["ticker_switch", "ticker_analysis", "ticker_search", "next_step_suggestions"]]:

@@ -21,6 +21,8 @@ dependencies = [
     "langgraph-cli[inmem]",
     "debugpy>=1.8.14",
     "langchain-litellm>=0.2.2",
+    "langchain-mcp-adapters>=0.1.9",
+    "litellm[proxy]>=1.75.2",
 ]
 
 [build-system]
